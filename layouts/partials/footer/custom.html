@@ -1,3 +1,4 @@
+<!-- 全局字体样式 -->
 <style>
   @font-face {
     font-family: 'LXGWWenKai-Regular.ttf';
@@ -8,7 +9,11 @@
     --base-font-family: 'LXGWWenKai-Regular.ttf';
     --code-font-family: 'LXGWWenKai-Regular.ttf';
   }
-  #TableOfContents > ul, ol {
+</style>
+
+<!-- 目录自动展开样式 -->
+<style>
+    #TableOfContents > ul, ol {
         ul, ol {
             display: none;
         }
@@ -16,7 +21,11 @@
             display: block;
         }
     }
-  #backTopBtn {
+</style>
+
+<!-- 返回顶部按钮样式 -->
+<style>
+    #backTopBtn {
     display: none;
     position: fixed;
     bottom: 30px;
@@ -26,10 +35,13 @@
     height: 30px;
     background-image: url({{ (resources.Get "icons/backTop.svg").Permalink }});
   }
-  /* 代码块展开 */
-    .highlight {
+</style>
+
+<!-- 代码块展开按钮样式 -->
+<style>
+      .highlight {
         /* 你可以根据需要调整这个高度 */
-        max-height: 600px;
+        max-height: 400px;
         overflow: hidden;
     }
 
@@ -67,11 +79,9 @@
         width: 22px;
         height: 16px;
     }
-
 </style>
 
-
-
+<!-- 自动展开目录脚本 -->
 <script>
     function initTocHide() {
         // 判断是否存在文章目录
@@ -106,8 +116,11 @@
         });
     }
     initTocHide()
+</script>
 
-        /**
+<!-- 返回顶部 -->
+<script>
+      /**
      * 滚动回顶部初始化
      */
     function initScrollTop() {
@@ -139,8 +152,11 @@
     }
 
     initScrollTop();
+</script>
 
-  function initCodeMoreBox() {
+<!-- 展开代码块 -->
+<script>
+    function initCodeMoreBox() {
     let codeBlocks = document.querySelectorAll(".highlight");
     if (!codeBlocks) {
       return;

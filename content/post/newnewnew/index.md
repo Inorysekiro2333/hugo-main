@@ -2,6 +2,16 @@
 date = '2026-01-11T21:44:13+08:00'
 draft = true
 title = '[Stack美化]一些样式修改'
+description = '样式修改胎教'
+categories = [
+    '美化',
+    '教程',
+]
+tags = [
+    'html',
+    'css',
+    'markdown',
+]
 +++
 
 ## 修改字体
@@ -342,7 +352,29 @@ jobs:
       codeBlock.appendChild(codeMoreBox)
     })
   }
-  
+
   initCodeMoreBox();
 </script>
 ```
+
+---
+
+## todolist
+
+1. 最底下的标签栏换掉✅
+
+2. 文章的标题图片
+
+3. ![](2026-01-12-21-59-56-PixPin_2026-01-12_21-59-53.jpg)
+
+这里加上时间，字数统计等信息
+
+4. 完善一下归档、标签tag
+
+5. 动态背景
+
+6. 鼠标指针
+
+7. 音乐播放
+
+8. live2D看板娘
