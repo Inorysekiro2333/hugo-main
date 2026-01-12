@@ -170,3 +170,179 @@ jobs:
     initTocHide()
 </script>
 ```
+
+## 返回顶部按钮
+
+（1）准备一张返回顶部图片，放到`assets/icons`文件夹下
+
+<img title="" src="2026-01-12-20-27-53-PixPin_2026-01-12_20-27-47.jpg" alt="" data-align="center">
+
+（2）将以下代码复制到`layouts/partials/footer/custom.html` 文件中（不存在则自行创建）
+
+```html
+<style>
+    #backTopBtn {
+        display: none;
+        position: fixed;
+        bottom: 30px;
+        z-index: 99;
+        cursor: pointer;
+        width: 30px;
+        height: 30px;
+        background-image: url({{ (resources.Get "icons/backTop.svg").Permalink }});
+    }
+</style>
+
+<script>
+    /**
+     * 滚动回顶部初始化
+     */
+    function initScrollTop() {
+        let rightSideBar = document.querySelector(".right-sidebar");
+        if (!rightSideBar) {
+            return;
+        }
+        // 添加返回顶部按钮到右侧边栏
+        let btn = document.createElement("div");
+        btn.id = "backTopBtn";
+        btn.onclick = backToTop
+        rightSideBar.appendChild(btn)
+        // 滚动监听
+        window.onscroll = function() {
+            // 当网页向下滑动 20px 出现"返回顶部" 按钮
+            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+                btn.style.display = "block";
+            } else {
+                btn.style.display = "none";
+            }
+        };
+    }
+
+    /**
+     * 返回顶部
+     */
+    function backToTop(){
+        window.scrollTo({ top: 0, behavior: "smooth" })
+    }
+
+    initScrollTop();
+</script>
+```
+
+## macOS风格的代码块
+
+（1）准备一张macOS风格的红绿灯图，放到`static/icons`目录下
+
+<img src="2026-01-12-20-29-39-PixPin_2026-01-12_20-28-56.jpg" title="" alt="" data-align="center">
+
+（2）将以下代码复制到`assets/scss/custom.scss`文件中
+
+```css
+.highlight {
+  border-radius: var(--card-border-radius);
+  max-width: 100% !important;
+  margin: 0 !important;
+  box-shadow: var(--shadow-l1) !important;
+}
+
+.highlight:before {
+  content: "";
+  display: block;
+  background: url(../icons/macOS-code-header.svg) no-repeat 0;
+  background-size: contain;
+  height: 18px;
+  margin-top: -10px;
+  margin-bottom: 10px;
+}
+```
+
+## 代码块过长的展开&折叠
+
+（1）准备一张向下的箭头图，保存到`assets/icons`目录下
+
+<img src="2026-01-12-20-34-40-PixPin_2026-01-12_20-34-38.jpg" title="" alt="" data-align="center">
+
+（2）将以下代码复制到`layouts/partials/footer/custom.html` 文件中（不存在则自行创建）
+
+```html
+<style>
+    .highlight {
+        /* 你可以根据需要调整这个高度 */
+        max-height: 400px;
+        overflow: hidden;
+    }
+
+    .code-show {
+        max-height: none !important;
+    }
+
+    .code-more-box {
+        width: 100%;
+        padding-top: 78px;
+        background-image: -webkit-gradient(linear, left top, left bottom, from(rgba(255, 255, 255, 0)), to(#fff));
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 1;
+    }
+
+    .code-more-btn {
+        display: block;
+        margin: auto;
+        width: 44px;
+        height: 22px;
+        background: #f0f0f5;
+        border-top-left-radius: 8px;
+        border-top-right-radius: 8px;
+        padding-top: 6px;
+        cursor: pointer;
+    }
+
+    .code-more-img {
+        cursor: pointer !important;
+        display: block;
+        margin: auto;
+        width: 22px;
+        height: 16px;
+    }
+</style>
+
+<script>
+  function initCodeMoreBox() {
+    let codeBlocks = document.querySelectorAll(".highlight");
+    if (!codeBlocks) {
+      return;
+    }
+    codeBlocks.forEach(codeBlock => {
+      // 校验是否overflow
+      if (codeBlock.scrollHeight <= codeBlock.clientHeight) {
+        return;
+      }
+      // 元素初始化
+      // codeMoreBox
+      let codeMoreBox = document.createElement('div');
+      codeMoreBox.classList.add('code-more-box');
+      // codeMoreBtn
+      let codeMoreBtn = document.createElement('span');
+      codeMoreBtn.classList.add('code-more-btn');
+      codeMoreBtn.addEventListener('click', () => {
+        codeBlock.classList.add('code-show');
+        codeMoreBox.style.display = 'none';
+        // 触发resize事件，重新计算目录位置
+        window.dispatchEvent(new Event('resize'))
+      })
+      // img
+      let img = document.createElement('img');
+      img.classList.add('code-more-img');
+      img.src = {{ (resources.Get "icons/codeMore.png").Permalink }}
+      // 元素添加
+      codeMoreBtn.appendChild(img);
+      codeMoreBox.appendChild(codeMoreBtn);
+      codeBlock.appendChild(codeMoreBox)
+    })
+  }
+  
+  initCodeMoreBox();
+</script>
+```
