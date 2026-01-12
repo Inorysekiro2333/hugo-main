@@ -1,7 +1,7 @@
 baseurl: https://Inorysekiro2333.github.io
 languageCode: en-us
 theme: hugo-theme-stack
-title: Example Site
+title: Inory's Block
 copyright: InorySekiro
 
 # Theme i18n support
@@ -86,7 +86,7 @@ params:
             default: Licensed under CC BY-NC-SA 4.0
 
     comments:
-        enabled: true
+        enabled: false
         provider: utterances
 
         disqusjs:
@@ -220,7 +220,7 @@ menu:
     social:
         - identifier: github
           name: GitHub
-          url: https://https://github.com/Inorysekiro2333
+          url: https://github.com/Inorysekiro2333
           params:
               icon: brand-github
 
