@@ -18,8 +18,8 @@ languages:
         title: Inory
         weight: 1
         params:
-            sidebar:
-                subtitle: 一个抽象串子的Blog-v1
+            # sidebar:
+            #     subtitle: 一个抽象串子的Blog-v1
 
     en:
         languageName: English
@@ -80,7 +80,7 @@ params:
     article:
         math: True
         toc: true
-        readingTime: false
+        readingTime: true
         license:
             enabled: false
             default: Licensed under CC BY-NC-SA 4.0

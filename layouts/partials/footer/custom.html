@@ -192,3 +192,75 @@
   
   initCodeMoreBox();
 </script>
+
+
+<!-- 樱花飞舞动态特效 -->
+ <script src={{ (resources.Get "background/sakura.js").Permalink }}></script>
+
+
+ <!-- pjax实现无缝加载 -->
+  <!-- 【custom.html】 -->
+<script src="https://cdn.jsdelivr.net/npm/pjax/pjax.min.js"></script>
+<script>
+    var pjax = new Pjax({
+        selectors: [
+            ".main-container"
+        ]
+    })
+</script>
+
+<script>
+    pjax._handleResponse = pjax.handleResponse;
+    pjax.handleResponse = function(responseText, request, href, options) {
+        if (request.responseText.match("<html")) {
+            if (responseText) {
+                // 将新页面的html字符串解析成DOM对象
+                let newDom = new DOMParser().parseFromString(responseText, 'text/html');
+                // 获取新页面中body的className，并设置回当前页面
+                let bodyClass = newDom.body.className;
+                document.body.setAttribute("class", bodyClass)
+            }
+            // 放行，交给pjax自己处理
+            pjax._handleResponse(responseText, request, href, options);
+        } else {
+            // handle non-HTML response here
+        }
+    }
+</script>
+
+<script>
+    document.addEventListener('pjax:complete', () => {
+        // Stack脚本初始化
+        window.Stack.init();
+    })
+</script>
+
+
+
+<!-- 虚拟进度条 -->
+<!--custom.html-->
+
+{{ with resources.Get "js/topbar.min.js" }}
+    <!-- 引入本地JS脚本 -->
+    <script src={{ .Permalink }}></script>
+{{ end }}
+<script>
+    // 修改进度条颜色
+    topbar.config({
+        barColors: {
+            '0': 'rgba(255,  255, 255, 1)', // 进度0%白色
+            '1.0': 'rgba(0, 149, 234,  1)' // 进度100%蓝色
+        }
+    })
+	
+    document.addEventListener('pjax:send', () => {
+        // 显示顶部进度条
+        topbar.show();
+    })
+	
+    document.addEventListener('pjax:complete', () => {
+        
+        // 隐藏顶部进度条
+        topbar.hide();
+    })
+</script>

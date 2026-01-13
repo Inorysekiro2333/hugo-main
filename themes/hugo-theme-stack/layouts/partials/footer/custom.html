@@ -1,0 +1,36 @@
+<script>
+    async function renderKaTeX() {
+        // 判断当前页面是否有KateX
+        let katex = document.querySelector(".math-katex");
+        if (!katex) {
+            return;
+        }
+        // 等待函数加载成功后，再执行渲染方法
+        while (typeof renderMathInElement !== 'function') {
+            await delay(500);
+        }        
+        // KaTeX渲染方法
+        renderMathInElement(document.body, {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });
+    }
+    
+    /**
+     * 同步延迟
+     */
+    function delay(time) {
+        return new Promise(resolve => {
+            setTimeout(resolve, time)
+        })
+    }
+
+    document.addEventListener('pjax:complete', () => {
+        renderKaTeX();
+    })
+</script>

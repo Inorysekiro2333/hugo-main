@@ -357,6 +357,243 @@ jobs:
 </script>
 ```
 
+## 樱花动态特效
+
+把樱花的动态特效js文件放到`assets/background`文件夹下，然后将以下代码复制到`layouts/partials/footer/custom.html` 文件中（不存在则自行创建）
+
+```html
+<script src={{ (resources.Get "background/sakura.js").Permalink }}></script>
+```
+
+## 无缝加载
+
+### 引入PJAX
+
+https://github.com/MoOx/pjax
+
+根据文档，在`layouts/partials/footer/custom.html`中加入下面代码：
+
+```html
+<!-- 【custom.html】 -->
+<script src="https://cdn.jsdelivr.net/npm/pjax/pjax.min.js"></script>
+<script>
+    var pjax = new Pjax({
+        selectors: [
+            ".main-container"
+        ]
+    })
+</script>
+```
+
+### 问题修复
+
+引入pjax以后会有以下问题：
+
+1. 文章样式无法正常显示
+
+2. 主题切换有问题
+
+3. 文章搜索功能失效
+
+4. 搜索内容跳转失效
+
+5. KaTeX失效
+
+下面一个个修复
+
+#### 文章样式无法正常显示
+
+`layouts/partials/footer/custom.html`中引入
+
+```html
+<script>
+    pjax._handleResponse = pjax.handleResponse;
+    pjax.handleResponse = function(responseText, request, href, options) {
+        if (request.responseText.match("<html")) {
+            if (responseText) {
+                // 将新页面的html字符串解析成DOM对象
+                let newDom = new DOMParser().parseFromString(responseText, 'text/html');
+                // 获取新页面中body的className，并设置回当前页面
+                let bodyClass = newDom.body.className;
+                document.body.setAttribute("class", bodyClass)
+            }
+            // 放行，交给pjax自己处理
+            pjax._handleResponse(responseText, request, href, options);
+        } else {
+            // handle non-HTML response here
+        }
+    }
+</script>
+```
+
+#### 主题切换修复
+
+同样在footer/custom.html中引入
+
+```html
+<script>
+    document.addEventListener('pjax:complete', () => {
+        // Stack脚本初始化
+        window.Stack.init();
+    })
+</script>
+```
+
+#### 文章搜索和搜索功能跳转
+
+（1）查看`themes\hugo-theme-stack\assets\ts\search.tsx` 注释掉`window.addEventListener()`函数，并在下面引入代码
+
+```tsx
+/**
+ * 记得把window.addEventListener('load' ...这部分代码注释掉
+ * 初始化工作交给Stack.init()处理了，不需要这个了
+ */  
+...
+function searchInit() {
+    let search = document.querySelector('.search-result');
+    if (search) {
+        const searchForm = document.querySelector('.search-form') as HTMLFormElement,
+            searchInput = searchForm.querySelector('input') as HTMLInputElement,
+            searchResultList = document.querySelector('.search-result--list') as HTMLDivElement,
+            searchResultTitle = document.querySelector('.search-result--title') as HTMLHeadingElement;
+
+        new Search({
+            form: searchForm,
+            input: searchInput,
+            list: searchResultList,
+            resultTitle: searchResultTitle,
+            resultTitleTemplate: window.searchResultTitleTemplate
+        });
+    }
+}
+
+export {
+    searchInit
+}
+```
+
+![](2026-01-13-10-57-19-PixPin_2026-01-13_10-57-16.jpg)
+
+（2）修改`assets/ts/search.tsx`代码，引入搜索初始化方法并调用
+
+```ts
+...
+import { searchInit } from "ts/search";
+let Stack = {
+    init: () => {
+        ...
+        // 调用search脚本初始化方法
+        searchInit();
+    }
+}
+```
+
+在`doSearch()`方法末尾重新解析文档
+
+```tsx
+private async doSearch(keywords: string[]) {
+    ...
+    /* 
+    方法末尾，让pjax重新解析文档数据，识别动态渲染的数据
+    虽然当前文件没有pjax对象，但最后静态页面会生成一个整体的js文件
+    pjax对象那时就能识别到，就可成功调用
+    */
+    pjax.refresh(document);
+}
+```
+
+（3）找到`layouts/partials/footer/components/script.html`补充下面内容
+
+"JSXFactory" "createElement"
+
+![](2026-01-13-11-03-51-PixPin_2026-01-13_11-03-46.jpg)
+
+#### 数学公式KaTex修复
+
+（1）在`layouts/partials/article/components/math.html`添加元素
+
+```html
+<div class="math-katex"></div>
+```
+
+（2）`layouts/partials/footer/custom.html`引入下面代码
+
+```html
+<script>
+    async function renderKaTeX() {
+        // 判断当前页面是否有KateX
+        let katex = document.querySelector(".math-katex");
+        if (!katex) {
+            return;
+        }
+        // 等待函数加载成功后，再执行渲染方法
+        while (typeof renderMathInElement !== 'function') {
+            await delay(500);
+        }        
+        // KaTeX渲染方法
+        renderMathInElement(document.body, {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });
+    }
+
+    /**
+     * 同步延迟
+     */
+    function delay(time) {
+        return new Promise(resolve => {
+            setTimeout(resolve, time)
+        })
+    }
+
+    document.addEventListener('pjax:complete', () => {
+        renderKaTeX();
+    })
+</script>
+```
+
+## 虚拟进度条
+
+（1）前往[topbar by buunguyen](https://buunguyen.github.io/topbar/)
+
+解压后的topbar.min.js放到`assets\js\topbar.min.js`
+
+（2）`footer\custom.html`引入
+
+```html
+<!--custom.html-->
+
+{{ with resources.Get "js/topbar.min.js" }}
+    <!-- 引入本地JS脚本 -->
+    <script src={{ .Permalink }}></script>
+{{ end }}
+<script>
+    // 修改进度条颜色
+    topbar.config({
+        barColors: {
+            '0': 'rgba(255,  255, 255, 1)', // 进度0%白色
+            '1.0': 'rgba(0, 149, 234,  1)' // 进度100%蓝色
+        }
+    })
+
+    document.addEventListener('pjax:send', () => {
+        // 显示顶部进度条
+        topbar.show();
+    })
+
+    document.addEventListener('pjax:complete', () => {
+
+        // 隐藏顶部进度条
+        topbar.hide();
+    })
+</script>
+```
+
 ---
 
 ## todolist
@@ -369,9 +606,9 @@ jobs:
 
 这里加上时间，字数统计等信息
 
-4. 完善一下归档、标签tag
+4. 完善一下归档、标签
 
-5. 动态背景
+5. 动态背景✅
 
 6. 鼠标指针
 
