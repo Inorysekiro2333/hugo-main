@@ -4,7 +4,7 @@ description = '记录一些HUGO的操作方法，随缘更新，想到哪写到�
 date = '2026-01-13T11:22:27+08:00'
 draft = true
 image = ''
-catagories = ['HUGO','教程']
+categories = ['HUGO','教程']
 tags = ['hugo']
 +++
 

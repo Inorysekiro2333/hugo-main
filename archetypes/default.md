@@ -4,6 +4,6 @@ description = ''
 date = '{{ .Date }}'
 draft = true
 image = ''
-catagories = []
+categories = []
 tags = []
 +++
