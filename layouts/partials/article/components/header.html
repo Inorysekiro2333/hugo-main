@@ -1,0 +1,73 @@
+<header class="article-header">
+    {{- $image := partialCached "helper/image" (dict "Context" . "Type" "article") .RelPermalink "article" -}}
+    {{ if $image.exists }}
+        <div class="article-image-wrapper">
+            <div class="article-image">
+                <a href="{{ .RelPermalink }}" class="image-link">
+                    {{ if $image.resource }}
+                        {{- $Permalink := $image.resource.RelPermalink -}}
+                        {{- $Width := $image.resource.Width -}}
+                        {{- $Height := $image.resource.Height -}}
+                        {{- $Srcset := "" -}}
+
+                        {{- if (default true .Page.Site.Params.imageProcessing.cover.enabled) -}}
+                            {{- $thumbnail := $image.resource.Resize "800x" -}}
+                            {{- $thumbnailRetina := $image.resource.Resize "1600x" -}}
+                            {{- $Srcset = printf "%s 800w, %s 1600w" $thumbnail.RelPermalink $thumbnailRetina.RelPermalink -}}
+                            {{- $Permalink = $thumbnail.RelPermalink -}}
+                            {{- $Width = $thumbnail.Width -}}
+                            {{- $Height = $thumbnail.Height -}}
+                        {{- end -}}
+
+                        <img src="{{ $Permalink }}"
+                            {{ with $Srcset }}srcset="{{ . }}"{{ end }}
+                            width="{{ $Width }}"
+                            height="{{ $Height }}"
+                            loading="lazy"
+                            alt="Featured image of post {{ .Title }}" class="featured-image"/>
+                    {{ else }}
+                        <img src="{{ $image.permalink }}" loading="lazy" alt="Featured image of post {{ .Title }}" class="featured-image"/>
+                    {{ end }}
+                </a>
+            </div>
+        </div>
+    {{ end }}
+
+    {{ partialCached "article/components/details" . .RelPermalink }}
+</header>
+
+<!-- 特色图片悬浮效果 -->
+<style>
+    .article-image-wrapper {
+        margin: -24px -24px 24px -24px;
+        overflow: hidden;
+        border-radius: var(--card-border-radius) var(--card-border-radius) 0 0;
+    }
+
+    .article-image {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .article-image .image-link {
+        display: block;
+    }
+
+    .featured-image {
+        width: 100%;
+        height: auto;
+        max-height: 400px;
+        object-fit: cover;
+        transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .article-image:hover .featured-image {
+        transform: scale(1.03);
+    }
+
+    @media (max-width: 768px) {
+        .article-image-wrapper {
+            margin: -16px -16px 20px -16px;
+        }
+    }
+</style>

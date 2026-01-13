@@ -615,3 +615,269 @@ private async doSearch(keywords: string[]) {
 7. 音乐播放
 
 8. live2D看板娘
+
+---
+
+## 代码块美化
+
+将代码块改为原生实现的 macOS 红绿灯风格，并添加悬停上浮效果。
+
+### 修改文件：`assets/scss/custom.scss`
+
+```scss
+// 代码块原生样式 - 简约现代风格
+.highlight {
+  border-radius: var(--card-border-radius);
+  max-width: 100% !important;
+  margin: 0 !important;
+  box-shadow: var(--shadow-l1) !important;
+  position: relative;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid var(--line-color);
+  overflow: hidden;
+}
+
+.highlight:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12) !important;
+}
+
+// 红绿灯头部
+.highlight-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: var(--code-background);
+  border-bottom: 1px solid var(--line-color);
+}
+
+.highlight-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  transition: transform 0.2s ease;
+}
+
+.highlight-dot:nth-child(1) {
+  background: #ff5f56;
+}
+
+.highlight-dot:nth-child(2) {
+  background: #ffbd2e;
+}
+
+.highlight-dot:nth-child(3) {
+  background: #27c93f;
+}
+
+// 悬停时红绿灯轻微放大
+.highlight:hover .highlight-dot {
+  transform: scale(1.1);
+}
+```
+
+### 修改文件：`layouts/partials/footer/custom.html`
+
+添加红绿灯头部初始化脚本：
+
+```html
+<!-- 代码块红绿灯头部 -->
+<script>
+    function initCodeHeader() {
+        const codeBlocks = document.querySelectorAll('.highlight');
+        codeBlocks.forEach(block => {
+            if (block.querySelector('.highlight-header')) {
+                return;
+            }
+            const header = document.createElement('div');
+            header.className = 'highlight-header';
+            const colors = ['#ff5f56', '#ffbd2e', '#27c93f'];
+            colors.forEach(color => {
+                const dot = document.createElement('span');
+                dot.className = 'highlight-dot';
+                dot.style.background = color;
+                header.appendChild(dot);
+            });
+            block.insertBefore(header, block.firstChild);
+        });
+    }
+    initCodeHeader();
+</script>
+```
+
+并在 `pjax:complete` 中添加 `initCodeHeader()` 调用。
+
+---
+
+
+---
+
+## 返回顶部按钮
+
+右下角显示返回顶部按钮，滚动超过300px后显示。
+
+### 修改文件：`layouts/partials/footer/custom.html`
+
+```html
+<!-- 返回顶部按钮样式 -->
+<style>
+    #backTopBtn {
+        display: none;
+        position: fixed;
+        right: 24px;
+        bottom: 24px;
+        z-index: 100;
+        cursor: pointer;
+        width: 44px;
+        height: 44px;
+        background: var(--card-background);
+        border: 1px solid var(--line-color);
+        border-radius: 12px;
+        box-shadow: var(--shadow-l1);
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    #backTopBtn:hover {
+        background: var(--accent-color);
+        border-color: var(--accent-color);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-l2);
+    }
+
+    #backTopBtn svg {
+        width: 20px;
+        height: 20px;
+        color: var(--card-text-color);
+        transition: color 0.3s ease;
+    }
+
+    #backTopBtn:hover svg {
+        color: #fff;
+    }
+</style>
+
+<!-- 返回顶部 -->
+<script>
+    function initScrollTop() {
+        if (document.getElementById('backTopBtn')) {
+            document.getElementById('backTopBtn').remove();
+        }
+        let btn = document.createElement("div");
+        btn.id = "backTopBtn";
+        btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+        </svg>`;
+        btn.onclick = backToTop;
+        document.body.appendChild(btn);
+
+        window.addEventListener('scroll', function() {
+            if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+                btn.style.display = 'flex';
+            } else {
+                btn.style.display = 'none';
+            }
+        });
+    }
+
+    function backToTop() {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    initScrollTop();
+</script>
+```
+
+---
+
+## 特色图片悬浮效果
+
+文章特色图片悬停时有轻微放大效果。
+
+### 修改文件：`layouts/partials/article/components/header.html`
+
+```html
+<!-- 特色图片悬浮效果 -->
+<style>
+    .article-image-wrapper {
+        margin: -24px -24px 24px -24px;
+        overflow: hidden;
+        border-radius: var(--card-border-radius) var(--card-border-radius) 0 0;
+    }
+
+    .article-image {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .featured-image {
+        width: 100%;
+        height: auto;
+        max-height: 400px;
+        object-fit: cover;
+        transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .article-image:hover .featured-image {
+        transform: scale(1.03);
+    }
+</style>
+```
+
+---
+
+## 字数统计
+
+在文章底部显示字数统计。
+
+### 修改文件：`layouts/partials/article/components/footer.html`
+
+```html
+<!-- 字数统计 -->
+<section class="article-wordcount">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+    </svg>
+    <span>{{ T "article.wordCount" .WordCount }}</span>
+</section>
+
+<!-- 文章底部居中样式 -->
+<style>
+    .article-footer {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 16px;
+        padding-top: 24px;
+        margin-top: 32px;
+        border-top: 1px solid var(--line-color);
+    }
+
+    .article-wordcount {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--card-text-secondary);
+        font-size: 13px;
+        order: 0;
+    }
+
+    .article-wordcount svg {
+        width: 16px;
+        height: 16px;
+    }
+</style>
+```
+
+### 添加翻译：`themes/hugo-theme-stack/i18n/zh-cn.yaml`
+
+```yaml
+wordCount:
+    other: "字数: {{ .Count }}"
+```
+
+---
+

@@ -18,19 +18,54 @@
     }
   }
 }
+
+// 代码块原生样式 - 简约现代风格
 .highlight {
   border-radius: var(--card-border-radius);
   max-width: 100% !important;
   margin: 0 !important;
   box-shadow: var(--shadow-l1) !important;
+  position: relative;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid var(--line-color);
+  overflow: hidden;
 }
 
-.highlight:before {
-  content: "";
-  display: block;
-  background: url(../icons/macOS-code-header.svg) no-repeat 0;
-  background-size: contain;
-  height: 18px;
-  margin-top: -10px;
-  margin-bottom: 10px;
+.highlight:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12) !important;
+}
+
+// 红绿灯头部
+.highlight-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: var(--code-background);
+  border-bottom: 1px solid var(--line-color);
+}
+
+.highlight-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  transition: transform 0.2s ease;
+}
+
+.highlight-dot:nth-child(1) {
+  background: #ff5f56;
+}
+
+.highlight-dot:nth-child(2) {
+  background: #ffbd2e;
+}
+
+.highlight-dot:nth-child(3) {
+  background: #27c93f;
+}
+
+// 悬停时红绿灯轻微放大
+.highlight:hover .highlight-dot {
+  transform: scale(1.1);
 }
