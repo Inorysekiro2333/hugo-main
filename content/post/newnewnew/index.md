@@ -1,7 +1,7 @@
 +++
 date = '2026-01-11T21:44:13+08:00'
 draft = true
-title = '[Stack美化]一些样式修改'
+title = '【Stack美化】一些样式修改'
 description = '样式修改胎教'
 categories = [
     '美化',
@@ -12,6 +12,7 @@ tags = [
     'css',
     'markdown',
 ]
+image = '1cc2da31-d479-4fb6-82a2-31dc69c2c7f0.jpg'
 +++
 
 ## 修改字体

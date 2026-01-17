@@ -3,7 +3,7 @@ title = '【RAG项目】企业级RAG项目实战'
 description = '实战部署学习过程中的一些踩坑'
 date = '2026-01-15T12:57:15+08:00'
 draft = true
-image = ''
+image = 'PixPin_2026-01-17_20-13-22.jpg'
 categories = ['项目','学习']
 tags = ['agent','rag']
 +++
