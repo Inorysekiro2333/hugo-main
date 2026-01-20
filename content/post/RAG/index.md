@@ -95,8 +95,6 @@ sudo docker-compose up -d
 
 ![](2026-01-15-13-16-35-PixPin_2026-01-15_13-16-33.jpg)
 
-
-
 ### 建立数据库表
 
 （1）使用DBeaver连接数据库，根据代码里的sql脚本创建table
@@ -112,8 +110,6 @@ ALTER TABLE rag_robot CHANGE llm_id chat_llm_id BIGINT NOT NULL;
 ALTER TABLE rag_robot ADD COLUMN temperature FLOAT DEFAULT 0.7;
 ALTER TABLE rag_robot ADD COLUMN max_tokens INT DEFAULT 2000;
 ALTER TABLE rag_robot ADD COLUMN description VARCHAR(500);
-
-
 ```
 
 因为后续在跑通流程的过程中发现前端传参和数据库表不一致，数据库缺失字段
@@ -165,8 +161,6 @@ class User(Base):
         return self.role == "admin"
 ```
 
-
-
 2. llm.py
 
 ```python
@@ -213,10 +207,7 @@ class LLM(Base):
 
     def is_active(self) -> bool:
         return self.status == 1
-
 ```
-
-
 
 3. apikey.py
 
@@ -251,10 +242,7 @@ class APIKey(Base):
 
     def is_active(self) -> bool:
         return self.status == 1
-
 ```
-
-
 
 4. knowledge.py
 
@@ -294,10 +282,7 @@ class Knowledge(Base):
 
     def is_active(self) -> bool:
         return self.status == 1
-
 ```
-
-
 
 5. document.py
 
@@ -341,10 +326,7 @@ class Document(Base):
 
     def get_file_size_mb(self) -> float:
         return round(self.file_size / (1024 * 1024), 2)
-
 ```
-
-
 
 6. robot.py
 
@@ -386,10 +368,7 @@ class Robot(Base):
 
     def is_active(self) -> bool:
         return self.status == 1
-
 ```
-
-
 
 7. robot_knowledge.py
 
@@ -416,10 +395,7 @@ class RobotKnowledge(Base):
 
     def __repr__(self):
         return f"<RobotKnowledge(id={self.id}, robot_id={self.robot_id}, knowledge_id={self.knowledge_id})>"
-
 ```
-
-
 
 8. session.py
 
@@ -464,13 +440,14 @@ class Session(Base):
 
     def is_deleted(self) -> bool:
         return self.status == "deleted"
-
-    def is_pinned(self) -> bool:
+    
+    # is_pinned既是列又是方法，名称冲突导致会话加载失败。
+    # def is_pinned(self) -> bool:
+        # return self.is_pinned == 1
+    # 需要重命名方法
+    def get_is_pinned(self) -> bool:
         return self.is_pinned == 1
-
 ```
-
-
 
 9. chat_history.py
 
@@ -532,5 +509,47 @@ class ChatHistory(Base):
 
     def get_total_time_seconds(self) -> float:
         return round(self.total_time_ms / 1000, 2)
-
 ```
+
+
+
+运行下面命令启动后端和前端：
+
+```bash
+python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+
+
+npm run dev
+```
+
+成功启动
+
+![](2026-01-20-13-30-45-PixPin_2026-01-20_13-30-43.jpg)
+
+
+
+### 加载会话列表失败
+
+`session.py` 中 is_pinned既是列又是方法，名称冲突。需要重命名方法：
+
+![](2026-01-20-13-36-29-PixPin_2026-01-20_13-36-25.jpg)
+
+
+
+## 启动项目
+
+1. 注册用户
+
+2. 配置LLM：对话模型+嵌入模型
+
+3. 设置API密钥：对话模型
+
+4. 新建知识库，上传文档
+
+5. 添加机器人
+
+6. 开始对话
+
+
+
+## 核心模块：从chat.py开始
