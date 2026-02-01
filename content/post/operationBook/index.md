@@ -19,4 +19,3 @@ hugo new content post/<新建文章的目录>/index.md
 ## 修改默认文章模板
 
 在`archetypes\default.md`中修改即可。
-
