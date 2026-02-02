@@ -3,7 +3,7 @@ title = '【Leetcode】算法刷题日常'
 description = ''
 date = '2026-02-01T16:12:08+08:00'
 draft = true
-image = ''
+image = '119571089.jpg'
 categories = ['算法', '力扣']
 tags = ['leetcode']
 +++
@@ -293,10 +293,12 @@ private ListNode reverse(ListNode head) {
 }
 ```
 
-
-
 ![](2026-02-01-21-06-27-PixPin_2026-02-01_21-06-26.jpg)
 
 ![](2026-02-01-21-06-36-PixPin_2026-02-01_21-06-35.jpg)
 
 ![](2026-02-01-21-06-57-PixPin_2026-02-01_21-06-56.jpg)
+
+---
+
+## Day2
