@@ -302,3 +302,258 @@ private ListNode reverse(ListNode head) {
 ---
 
 ## Day2
+
+### 三数之和
+
+https://leetcode.cn/problems/3sum/description/
+
+![](2026-02-02-16-45-15-PixPin_2026-02-02_16-45-14.jpg)
+
+思路：
+
+- 先排好序，最外层循环为 i 固定为左起第一个从后遍历（从小到大），内层循环双指针j、k，j为i后一个开始往后遍历（从小到大），k从最右边往左边遍历（从大到小）
+
+- 外层去重的点：if (i > 0 && nums[i - 1] == nums[i]) continue;
+
+- 两个外层循环的优化点：
+  
+  - 如果i + (i+1) + (i+2)  > 0 （最小的三个数已经大于0了）直接break掉，不进循环
+  
+  - 如果i + (n - 1) + (n - 2) < 0 （当前的i和最大的两个数都还小于0，说明当前的i太小） continue直接遍历下一个i
+
+- 内层循环：
+  
+  - 如果i + j + k > 0了，说明k大了，k--
+  
+  - 如果i + j + k < 0了，说明j小了，j++
+  
+  - 等于0的情况下，去重 j、k ： nums[j] == nums[j - 1] ,j++;   nums[k] == nums[k + 1], k--
+
+```java
+class Solution {
+    public List<List<Integer>> threeSum(int[] nums) {
+        // 转化为两数之和
+        List<List<Integer>> ans = new ArrayList<>();
+        Arrays.sort(nums);
+        int n = nums.length;
+        for (int i = 0; i < n - 2; i++) {
+            int x = nums[i];
+            if (i > 0 && nums[i - 1] == x) continue; // 去重i
+
+            // 2个优化
+            if (x + nums[i + 1] + nums[i + 2] > 0) break;
+            if (x + nums[n - 1] + nums[n - 2] < 0) continue;
+
+            int j = i + 1;
+            int k = n - 1;
+
+            while (j < k) {
+                int s = x + nums[j] + nums[k];
+                if (s > 0) k--;
+                else if (s < 0) j++;
+                else {
+                    // 去重j k
+                    ans.add(List.of(x, nums[j], nums[k]));
+                    for (j++;j < k && nums[j] == nums[j - 1]; j++);
+                    for (k--;j < k && nums[k] == nums[k + 1]; k--);
+                }
+            }
+        }
+        return ans;
+    }
+}
+```
+
+
+
+---
+
+### 相交链表
+
+https://leetcode.cn/problems/intersection-of-two-linked-lists/description/
+
+![](2026-02-02-17-20-18-PixPin_2026-02-02_17-20-16.jpg)
+
+![](2026-02-02-17-20-30-PixPin_2026-02-02_17-20-28.jpg)
+
+![](2026-02-02-17-20-38-PixPin_2026-02-02_17-20-37.jpg)
+
+思路：独属于理科生的情话：“走过你的来时路，只为与你相遇”
+
+设「第一个公共节点」为 node，「链表headA 」的节点数量为 a，「链表headB」的节点数量为b，「两链表的公共尾部」的节点数量为 c，则有：
+
+- 头节点 headA 到 node 前，共有 a－c 个节点;
+
+- 头节点 headB 到 node 前，共有 b－c 个节点;
+
+考虑构建两个节点指针A，B分别指向两链表头节点headA，headB，做如下操作:
+
+- 指针A 先遍历完链表headA，再开始遍历链表headB，当走到node时，共走步数为:     a+ (b - c)
+
+- 指针B先遍历完链表headB，再开始遍历链表headA，当走到node时，共走步数为:
+  b+ (a -c)
+  
+  如下式所示，此时指针A，B重合，并有两种情况:
+  
+  a + (b -c) = b+ (a - c)
+  
+  若两链表有公共尾部（即 c > 0）：指针A，B同时指向「第一个公共节点」node。
+  
+  若两链表无公共尾部（即 c = 0）：指针A，B同时指向 null。
+  
+  因此返回A即可。
+
+```java
+public class Solution {
+    public ListNode getIntersectionNode(ListNode headA, ListNode headB) {
+        if (headA == null || headB == null) {
+            return null;
+        }
+        ListNode pA = new ListNode(-1, headA);
+        ListNode pB = new ListNode(-1, headB);
+        while(pA != pB) {
+            pA = pA != null ? pA.next : headB;
+            pB = pB != null ? pB.next : headA;
+        }
+        return pA;
+    }
+}
+```
+
+---
+
+### 合并区间
+
+https://leetcode.cn/problems/merge-intervals/description/
+
+![](2026-02-02-19-25-32-PixPin_2026-02-02_19-25-28.jpg)
+
+思路：
+
+1. 先按照单个区间的第一个元素排序：`Arrays.sort(intervals, (p, q) -> p[0] - q[0])`
+
+2. 遍历二维数组，对于每个拿到的元素（一维数组 int[ ] p）,如果当前遍历区间的左端点start_i <= 结果集合中最后一个元素的右端点end_i-1，说明是可以合并的。合并之后的右端点取当前遍历区间和结果集合最后一个元素中的大者。
+   
+   - `if (p[0] <= ans.get(m - 1)[1])`
+   
+   - `ans.get(m-1)[1] = Math.max(p[1], ans.get(m-1)[1])`
+
+3. 不能合并的单独加入结果集合中
+
+```java
+class Solution {
+    public int[][] merge(int[][] intervals) {
+        Arrays.sort(intervals, (p, q) -> p[0] - q[0]); // 先按照单个区间的第一个元素排序
+        List<int[]> ans = new ArrayList<>();
+        for (int[] p : intervals) {
+            int m = ans.size();
+            
+            // 注意边界条件 
+            // 如果当前遍历区间左端点 <= 列表中最后一个元素的右端点，说明是可以合并的
+            if (m > 0 && p[0] <= ans.get(m - 1)[1]) {
+                // 合并之后的右端点取两者之间的大的
+                ans.get(m - 1)[1] = Math.max(p[1], ans.get(m - 1)[1]);
+            } else {
+                ans.add(p);
+            }
+        }
+        return ans.toArray(new int[ans.size()][]);
+    }
+}
+```
+
+---
+
+### 字符串相加
+
+https://leetcode.cn/problems/add-strings/description/
+
+![](2026-02-02-19-34-41-PixPin_2026-02-02_19-34-40.jpg)
+
+思路：
+
+- 设定 i, j 两个指针分别指向num1和num2的尾部，模拟人工加法
+
+- 计算进位：计算`carry = tmp / 10`，代表当前位相加是否产生进位；
+
+- 添加当前位：计算`tmp = n1 + n2 + carry`，并将当前位`tmp % 10`添加至res头部；
+
+- 当指针 i, j 走过数字首部后，给n1, n2赋值0，相当于给num1, num2中长度较短的数字前面填0，方便后面计算
+
+- 当遍历完num1, num2后跳出循环，并根据carry的值决定是否在头部添加进位1，最终返回res
+
+```java
+class Solution {
+    public String addStrings(String num1, String num2) {
+        StringBuilder res = new StringBuilder("");
+        int i = num1.length() - 1, j = num2.length() - 1, carry = 0;
+        while (i >= 0 || j >= 0) {
+            int n1 = i >= 0 ? num1.charAt(i) - '0' : 0;
+            int n2 = j >= 0 ? num2.charAt(j) - '0' : 0;
+            int tmp = n1 + n2 + carry;
+            carry = tmp / 10;
+            res.append(tmp % 10);
+            i--;
+            j--;
+        }
+        if (carry == 1) res.append(1);
+        return res.reverse().toString();
+    }
+}
+```
+
+---
+
+### 合并k个升序链表hard
+
+https://leetcode.cn/problems/merge-k-sorted-lists/description/
+
+![](2026-02-02-20-40-09-PixPin_2026-02-02_20-40-08.jpg)
+
+思路：分治
+
+- 把lists一分为二，先合并前一半的链表，再合并后一半的链表
+
+- 然后把这两个链表合并成最终的链表
+
+- 如何合并前一半的链表？可以用递归，继续一分为二。如此下去直到只有一个链表，此时无需合并。
+
+```java
+class Solution {
+    public ListNode mergeKLists(ListNode[] lists) {
+        return mergeKLists(lists, 0, lists.length);
+    }
+
+    // 合并从 lists[i] 到 lists[j-1] 的链表
+    private ListNode mergeKLists(ListNode[] lists, int i, int j) {
+        int m = j - i;
+        if (m == 0) {
+            return null; // 注意输入的 lists 可能是空的
+        }
+        if (m == 1) {
+            return lists[i]; // 无需合并，直接返回
+        }
+        ListNode left = mergeKLists(lists, i, i + m / 2); // 合并左半部分
+        ListNode right = mergeKLists(lists, i + m / 2, j); // 合并右半部分
+        return mergeTwoLists(left, right); // 最后把左半和右半合并
+    }
+
+    // 21. 合并两个有序链表
+    private ListNode mergeTwoLists(ListNode list1, ListNode list2) {
+        ListNode dummy = new ListNode(); // 用哨兵节点简化代码逻辑
+        ListNode cur = dummy; // cur 指向新链表的末尾
+        while (list1 != null && list2 != null) {
+            if (list1.val < list2.val) {
+                cur.next = list1; // 把 list1 加到新链表中
+                list1 = list1.next;
+            } else { // 注：相等的情况加哪个节点都是可以的
+                cur.next = list2; // 把 list2 加到新链表中
+                list2 = list2.next;
+            }
+            cur = cur.next;
+        }
+        cur.next = list1 != null ? list1 : list2; // 拼接剩余链表
+        return dummy.next;
+    }
+}
+```

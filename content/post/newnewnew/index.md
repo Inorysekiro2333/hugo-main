@@ -711,7 +711,6 @@ private async doSearch(keywords: string[]) {
 
 ---
 
-
 ---
 
 ## 返回顶部按钮
@@ -881,4 +880,7 @@ wordCount:
 ```
 
 ---
+
+## 封面图片展示效果优化
+
 
