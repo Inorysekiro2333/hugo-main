@@ -364,8 +364,6 @@ class Solution {
 }
 ```
 
-
-
 ---
 
 ### 相交链表
@@ -447,7 +445,7 @@ class Solution {
         List<int[]> ans = new ArrayList<>();
         for (int[] p : intervals) {
             int m = ans.size();
-            
+
             // 注意边界条件 
             // 如果当前遍历区间左端点 <= 列表中最后一个元素的右端点，说明是可以合并的
             if (m > 0 && p[0] <= ans.get(m - 1)[1]) {
@@ -554,6 +552,230 @@ class Solution {
         }
         cur.next = list1 != null ? list1 : list2; // 拼接剩余链表
         return dummy.next;
+    }
+}
+```
+
+---
+
+## Day3
+
+### 排序数组（手撕快排）
+
+https://leetcode.cn/problems/sort-an-array/description/
+
+```java
+import java.util.Scanner;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        if (scanner.hasNext()) {
+            int n = scanner.nextInt();
+            int[] arr = new int[n];
+            for (int i = 0; i < n; i++) {
+                arr[i] = scanner.nextInt();
+            }
+            
+            quickSort(arr, 0, n - 1);
+            
+            StringBuilder sb = new StringBuilder();
+            for (int num : arr) {
+                sb.append(num).append(" ");
+            }
+            System.out.println(sb.toString().trim()); // 去掉首尾空格
+        }
+        scanner.close();
+    }
+
+    private static void quickSort(int[] arr, int left, int right) {
+        if (left < right) {
+            int pivotIndex = partition(arr, left, right);
+            quickSort(arr, left, pivotIndex - 1);
+            quickSort(arr, pivotIndex + 1, right);
+        }
+    }
+
+    private static int partition(int[] arr, int left, int right) {
+        int pivot = arr[left];
+        int i = left, j = right;
+        while (i < j) {
+            while (i < j && arr[j] >= pivot) j--;
+            while (i < j && arr[i] <= pivot) i++;
+            if (i < j) {
+                swap(arr, i, j);
+            }
+        }
+        // 枢纽元素归位
+        swap(arr, left, i);
+        return i;
+    }
+
+    private static void swap(int[] arr, int i, int j) {
+        int temp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = temp;
+    }
+}
+
+
+```
+
+
+
+---
+
+### 最大子数组和
+
+https://leetcode.cn/problems/maximum-subarray/description/
+
+![](2026-02-03-19-56-12-PixPin_2026-02-03_19-56-10.jpg)
+
+思路：
+
+- 贪心的思想：
+
+- 对于每一个位置，决定是 **“将当前的数加到之前的子数组中”** 还是 **“从当前的数重新开始一个新的子数组”**
+
+- 如果以 `x` 前一个元素结尾的子数组和 `pre` 是正数（或者非负），那么加上 `x` 后，子数组变长了，和也变大了（或者没有变小），这对后续寻找最大和是有利的。**所以，我们应该“继承”之前的成果**
+
+- 如果 `pre` 是负数，说明之前的子数组是一个“累赘”。加上它只会让总和变小。既然是负数，不如直接扔掉，从 `x` 自己开始算，**这就是“贪心”的体现——只要正收益，不要负累赘。**
+
+```java
+class Solution {
+    public int maxSubArray(int[] nums) {
+        int pre = 0, maxAns = nums[0];
+        for (int x : nums) {
+            pre = Math.max(pre + x, x);
+            maxAns = Math.max(maxAns, pre);
+        }
+        return maxAns;
+    }
+}
+
+```
+
+
+
+---
+
+### 最长回文子串
+
+思路：动态规划
+
+- 1.状态定义：dp数组
+
+- `dp[l][r]` 的含义是：字符串 `s` 从下标 `l` 到下标 `r` 的子串（即 `s[l...r]`）是否为回文串。
+
+- 2.状态转移方程：`if (s.charAt(l) == s.charAt(r) && (r - l <= 2 || dp[l + 1][r - 1]))`
+
+![](2026-02-03-20-24-07-PixPin_2026-02-03_20-23-53.jpg)
+
+- 一旦确认 `s[l...r]` 是回文（`dp[l][r] = true`），就检查它是否比当前记录的最长回文还长。如果是，就更新起止点和长度。
+
+```java
+class Solution {
+    public String longestPalindrome(String s) {
+         // 用一个 boolean dp[l][r] 标识字符串从i到j这段是否为回文。
+         // 如果dp[l][r] = true，要判断dp[l-1][r+1]是否为回文只需要判断l-1  r+1两个位置是否为相同字符
+        if (s == null || s.length() < 2) {
+            return s;
+        }
+        int strLen = s.length();
+        int maxStart = 0; //最长回文的起点
+        int maxEnd = 0; // 最长回文的终点
+        int maxLen = 1; // 最长回文的长度
+
+        boolean[][] dp = new boolean[strLen][strLen];
+
+        for (int r = 1; r < strLen; r++) {
+            for (int l = 0; l < r; l++) {
+                if (s.charAt(l) == s.charAt(r) && (r - l <= 2 || dp[l + 1][r - 1])) { // r - l <= 2是为了处理长度为2和3的短回文情况
+                    dp[l][r] = true;
+                    if (r - l + 1 > maxLen) {
+                        maxLen = r - l + 1;
+                        maxStart = l;
+                        maxEnd = r;
+                    }
+                }
+            }
+        }
+        return s.substring(maxStart, maxEnd + 1);
+    }
+}
+```
+
+
+
+---
+
+### 合并两个有序链表
+
+https://leetcode.cn/problems/merge-two-sorted-lists/
+
+```java
+class Solution {
+    public ListNode mergeTwoLists(ListNode list1, ListNode list2) {
+        ListNode dummy = new ListNode();
+        ListNode cur = dummy;
+        while (list1 != null && list2 != null) {
+            if (list1.val < list2.val) {
+                cur.next = list1;
+                list1 = list1.next;
+            } else {
+                cur.next = list2;
+                list2 = list2.next;
+            }
+            cur = cur.next;
+        }
+        cur.next = list1 != null ? list1 : list2;
+        return dummy.next;
+    }
+}
+```
+
+
+
+---
+
+### 二叉树的层序遍历
+
+https://leetcode.cn/problems/binary-tree-level-order-traversal/description/
+
+![](2026-02-03-20-17-25-PixPin_2026-02-03_20-17-22.jpg)
+
+思路：模板题
+
+- 使用队列
+
+- 遍历该节点时，判断该节点有无左右孩子，有的话加进队列中
+
+```java
+class Solution {
+    public List<List<Integer>> levelOrder(TreeNode root) {
+        // 结果集合[[],[]]
+        List<List<Integer>> res = new ArrayList<>();
+        // 使用队列维护
+        Queue<TreeNode> queue = new ArrayDeque<>();
+        if (root != null) {
+            queue.add(root);
+        }
+        while (!queue.isEmpty()) {
+            int n = queue.size();
+            List<Integer> level = new ArrayList<>();
+            for (int i = 0; i < n; i++) {
+                TreeNode node = queue.poll();
+                level.add(node.val);
+                if (node.left != null) {
+                    queue.add(node.left);
+                }
+                if (node.right != null) {
+                    queue.add(node.right);
+                }
+            }
+            res.add(level);
+        }
+        return res;
     }
 }
 ```
