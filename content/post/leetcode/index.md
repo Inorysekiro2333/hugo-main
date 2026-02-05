@@ -779,3 +779,480 @@ class Solution {
     }
 }
 ```
+
+
+
+## Day4
+
+### 搜索旋转排序数组
+
+https://leetcode.cn/problems/search-in-rotated-sorted-array/description/
+
+
+
+思路：
+
+- 二分查找
+
+- 将数组一分为二，其中一定有一个是有序的，另一个可能是有序，也能是部分有序。
+  此时有序部分用二分法查找
+
+- 无序部分再一分为二，其中一个一定有序，另一个可能有序，可能无序
+
+- 就这样循环
+
+```java
+class Solution {
+    public int search(int[] nums, int target) {
+        int n = nums.length;
+        if (n == 0) {
+            return -1;
+        }
+        if (n == 1) {
+            return nums[0] == target ? 0 : -1;
+        }
+
+        int l = 0, r = n - 1;
+        while (l <= r) {
+            int mid = (l + r) / 2;
+            if (nums[mid] == target) {
+                return mid;
+            }
+            if (nums[0] <= nums[mid]) {
+                if (nums[0] <= target && target < nums[mid]) {
+                    r = mid - 1;
+                } else {
+                    l = mid + 1;
+                }
+            } else {
+                if (nums[mid] < target && target <= nums[n - 1]) {
+                    l = mid + 1;
+                } else {
+                    r = mid - 1;
+                }
+            }
+        }
+        return -1;
+    }
+}
+```
+
+
+
+
+
+---
+
+### 岛屿数量
+
+https://leetcode.cn/problems/number-of-islands/description/
+
+![](2026-02-04-21-33-58-PixPin_2026-02-04_21-33-57.jpg)
+
+思路：
+
+- dfs模版题
+
+```java
+class Solution {
+    private static final int[][] DIRECTIONS = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
+    private int rows;
+    private int cols;
+    private char[][] grid;
+
+    public int numIslands(char[][] grid) {
+        if (grid == null || grid.length == 0) return 0;
+
+        this.rows = grid.length;
+        this.cols = grid[0].length;
+        this.grid = grid;
+
+        int res = 0;
+        for (int r = 0; r < rows; r++) {
+            for (int c = 0; c < cols; c++) {
+                // 条件：当前节点是需要处理的目标节点（如岛屿的'1'、未访问的节点等）
+                if (needProcess(r, c)) {
+                    dfs(r, c); // dfs遍历相连区域
+                    res++; // 遍历结束以后，res++
+                }
+            }
+        }
+        return res;
+    }
+
+    private void dfs(int r, int c) {
+        // 递归终止条件1：当前节点超出网格边界，直接返回
+        if (!inArea(grid, r, c)) {
+            return;
+        }
+
+        // 递归终止条件2：当前节点不需要处理，直接返回
+        if (!needProcess(r, c)) {
+            return;
+        }
+
+        // 关键步骤：标记当前节点为已访问（避免重复遍历，根据题目自定义标记方式）
+        markVisited(r, c);
+
+        // 遍历所有方向（上下左右），递归处理相邻节点
+        for (int[] dir : DIRECTIONS) {
+            int newR = r + dir[0]; // 新的行号
+            int newC = c + dir[1]; // 新的列号
+            dfs(newR, newC);
+        }
+    }
+
+    // 辅助函数：判断当前节点(r,c)是否需要处理（根据题目自定义）
+    private boolean needProcess(int r, int c) {
+        // 示例：岛屿数量问题中，判断是否是未访问的陆地'1'
+        return grid[r][c] == '1';
+    }
+
+    // 辅助函数：判断节点是否在网格内
+    private boolean inArea(char[][] grid, int r, int c) {
+        return 0 <= r && r < rows && 0 <= c && c < cols;
+    }
+
+    // 辅助函数：标记节点(r,c)为已访问（根据题目自定义）
+    private void markVisited(int r, int c) {
+        // 示例：岛屿数量问题中，将'1'改为'2'表示已访问
+        grid[r][c] = '2';
+    }
+}
+```
+
+
+
+---
+
+### 两数之和
+
+https://leetcode.cn/problems/two-sum/description/
+
+![](2026-02-04-21-39-56-PixPin_2026-02-04_21-39-54.jpg)
+
+思路：
+
+- 哈希表
+
+- key = nums[i]
+
+- value = i
+
+- 遍历的时候把当前的值和对应下表放进哈希表中
+
+- 同时判断，如果当前哈希表中存在key = target - nums[i]，说明找到了一组答案
+
+```java
+class Solution {
+    public int[] twoSum(int[] nums, int target) {
+        //  使用哈希表构建nums[i]  和 i 的映射
+        // key = nums[i]
+        // value = i
+        HashMap<Integer, Integer> map = new HashMap<>();
+        for (int i = 0; i < nums.length; i++) {
+            if (map.containsKey(target - nums[i])) {
+                return new int[]{map.get(target - nums[i]), i};
+            }
+            map.put(nums[i], i);
+        }
+        return new int[0];
+    }
+}
+```
+
+---
+
+### 全排列
+
+https://leetcode.cn/problems/permutations/description/
+
+
+
+![](2026-02-04-22-01-51-PixPin_2026-02-04_22-01-50.jpg)
+
+思路：
+
+- 回溯
+
+```java
+class Solution {
+    public List<List<Integer>> permute(int[] nums) {
+        // 保存结果列表
+        List<List<Integer>> ans = new ArrayList<>();
+        // 存储正在构建的排列路径
+        List<Integer> path = Arrays.asList(new Integer[nums.length]);
+        // 标记数组：onPath[j]表示nums[j]是否已经被加入当前path中（避免重复选择）
+        boolean[] onPath = new boolean[nums.length];
+        dfs(0, nums, ans, path, onPath);
+        return ans;
+    }
+    // 回溯函数：i表示当前正在填充path的第i个位置
+    private void dfs(int i, int[] nums, List<List<Integer>> ans, List<Integer> path, boolean[] onPath) {
+        // 递归终止条件：当i等于nums长度时，说明path已经填满，得到一个完整排列
+        if (i == nums.length) {
+            // 注意：需要新建一个ArrayList保存path的当前状态（因为path是复用的，后续会被修改）
+            ans.add(new ArrayList<>(path));
+            return;
+        }
+        // 遍历所有数字，尝试将未使用的数字放入当前i位置
+        for (int j = 0; j < nums.length; j++) {
+            // 如果nums[j]还未被加入path
+            if (!onPath[j]) {
+                // 选择：将nums[j]放入path的第i个位置
+                path.set(i, nums[j]);
+                // 标记nums[j]为已使用
+                onPath[j] = true;
+                // 递归：填充下一个位置（i+1）
+                dfs(i + 1, nums, ans, path, onPath);
+                // 回溯：撤销选择，标记nums[j]为未使用（供后续循环选择）
+                onPath[j] = false;
+                // 注：path的内容不需要手动撤销，因为下一次循环会用新值覆盖第i个位置
+            }
+        }
+    }
+}
+```
+
+
+
+---
+
+### 编辑距离
+
+https://leetcode.cn/problems/edit-distance/description/
+
+![](2026-02-04-19-45-49-PixPin_2026-02-04_19-45-46.jpg)
+
+思路：
+
+- 动态规划
+
+- 定义dp[i][j]
+  
+  - dp[i][j]代表word1中前i个字符，变换到word2中前j个字符，最短需要操作的次数
+  
+  - 需要考虑word1或者word2一个字母都没有，即全增加/全删除的情况，所以预留dp[0][j]和dp[i][0]
+
+- 状态转移
+  
+  - 增：dp[i][j] = dp[i][j - 1] + 1
+  
+  - 删：dp[i][j] = dp[i - 1][j] + 1
+  
+  - 改：dp[i][j] = dp[i - 1][j - 1] + 1
+
+- 按顺序计算，当计算 dp[i][j]时，dp[i - 1][j]，dp[i][j - 1]，dp[i - 1][j - 1]均已确定
+
+- 配合增删改三个操作，需要对应的dp把操作次数+1，取三种的最小
+
+- 如果刚好这两个字母相同，那么可以直接参考dp[i - 1][j - 1]，操作不用 + 1
+
+这道题就是**用表格记步数**，先填好边边（空变字加、字变空删），再填中间（字一样就偷懒，字不一样就从增删改里挑最少的），最后右下角的数就是答案
+
+```java
+class Solution{
+    public int minDistance(String word1, String word2) {
+        int m = word1.length(), n = word2.length();
+        int[][] dp = new int[m + 1][n + 1];
+        // 如果word2为空，那么word1变成word2只能一个个删，所以步数就是i
+        for (int i = 0; i < dp.length; i++) {
+            dp[i][0] = i;
+        }
+        // 同上，如果word1为空，要变成word2只能一个个增，所以步数就是j
+        for (int j = 0; j < dp[0].length; j++) {
+            dp[0][j] = j;
+        }
+        for (int i = 1; i < dp.length; i++) {
+            for (int j = 1; j < dp[0].length; j++) {
+                dp[i][j] = Math.min(dp[i - 1][j - 1], Math.min(dp[i - 1][j], dp[i][j - 1])) + 1;
+                if (word1.charAt(i - 1) == word2.charAt(j - 1)) {
+                    dp[i][j] = Math.min(dp[i][j], dp[i - 1][j - 1]);
+                }
+            }
+        }
+        return dp[m][n];
+    }
+}
+```
+
+---
+
+## Day5
+
+### 合并两个有序数组
+
+https://leetcode.cn/problems/merge-sorted-array/
+
+![](2026-02-05-18-40-12-PixPin_2026-02-05_18-40-11.jpg)
+
+思路：
+
+- 三指针，从后往前遍历
+
+- p1 = m - 1, p2 = n - 1, index = m + n - 1;
+
+- 循环终止条件是nums2元素为空`while(p2 >= 0)`
+
+```java
+class Solution {
+    public void merge(int[] nums1, int m, int[] nums2, int n) {
+        // 从后往前遍历，创建3个指针，p1是nums1合并前（有效数）的末尾，p2是nums2的末尾，p3是nums1的末尾
+        int p1 = m - 1;
+        int p2 = n - 1;
+        int p = m + n - 1;
+
+        while (p2 >= 0) {// nums2还有要合并的元素
+            // 如果p1 < 0, 那么走else分支，把 nums2 合并到 nums1 中
+            if (p1 >= 0 && nums1[p1] > nums2[p2]) {
+                nums1[p--] = nums1[p1--]; // 填入 nums1[p1]
+            } else {
+                nums1[p--] = nums2[p2--];
+            }
+        }
+    }
+}
+```
+
+---
+
+### 买卖股票的最佳时机
+
+https://leetcode.cn/problems/best-time-to-buy-and-sell-stock/description/
+
+![](2026-02-05-18-45-46-PixPin_2026-02-05_18-45-44.jpg)
+
+思路：
+
+- 动态规划
+
+- 状态转移方程：
+
+- 如果第 i 天卖出股票，则最大利润为（该天的股价 - 前面天数中最小的股价），
+
+- 然后与已知的最大利润比较，如果大于则更新当前最大利润的值
+
+```java
+class Solution{
+    public int maxProfit(int[] prices) {
+        int ans = 0;
+        int value = Integer.MAX_VALUE;
+        for (int price : prices) {
+            value = Math.min(price, value); // 更新最小的股价
+            ans = Math.max(ans, price - value); // 更新最大利润
+        }
+        return ans;
+    }
+}
+```
+
+---
+
+### 有效的括号
+
+https://leetcode.cn/problems/valid-parentheses/description/
+
+![](2026-02-05-18-57-29-PixPin_2026-02-05_18-57-28.jpg)
+
+思路：
+
+- 括号匹配问题使用数据结构--栈
+
+- 先看长度是不是偶数，奇数直接错
+
+- 左括号->放对应右括号进栈，top++
+
+- 右括号->栈空/拿出来的栈顶元素≠当前元素，直接错；匹配成功就--top
+
+- 最后看栈是否为空，为空就说明全部配对成功
+
+```java
+class Solution {
+    public boolean isValid(String s) {
+        int n = s.length();
+        // 必须22匹配。如果长度是奇数，直接返回false
+        if (n % 2 != 0) {
+            return false;
+        }
+
+        // 创建一个栈，如果是左括号则入栈，
+        char[] stack = s.toCharArray();
+        int top = 0;
+        for (char c : stack) {
+            if (c == '(') {
+                stack[top++] = ')'; // 入栈对应的右括号
+            } else if (c == '[') {
+                stack[top++] = ']';
+            } else if (c == '{') {
+                stack[top++] = '}';
+            } else if (top == 0 || stack[--top] != c) {
+                return false;
+            }
+        }
+        return top == 0;
+    }
+}
+```
+
+
+
+---
+
+### 二叉树的最近公共祖先
+
+https://leetcode.cn/problems/lowest-common-ancestor-of-a-binary-tree/description/
+
+![](2026-02-05-19-54-56-PixPin_2026-02-05_19-54-55.jpg)
+
+思路：
+
+- 递归
+
+![](2026-02-05-19-58-36-PixPin_2026-02-05_19-58-22.jpg)
+
+```java
+class Solution {
+    public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) {
+        // basecase：如果root是空，或者就是p或q，直接返回
+        if (root == null || root == p || root == q) {
+            return root;
+        }
+        // 在左子树中找p或者q
+        TreeNode left = lowestCommonAncestor(root.left, p, q);
+        // 在右子树中找p或者q
+        TreeNode right = lowestCommonAncestor(root.right, p, q);
+        
+        // 情况1：如果左右都找到了->当前root就是最近公共祖先
+        if (left != null && right != null) {
+            return root; // 当前节点是最近公共祖先
+        }
+        // 情况2：
+        // 如果只有左子树找到，就返回左子树的返回值
+        // 如果只有右子树找到，就返回右子树的返回值
+        // 如果左右子树都没有找到，就返回 null（注意此时 right = null）
+        return left != null ? left : right;
+    }
+}
+```
+
+---
+
+### 反转链表②
+
+https://leetcode.cn/problems/reverse-linked-list-ii/description/
+
+![](2026-02-05-20-00-21-PixPin_2026-02-05_20-00-20.jpg)
+
+思路：
+
+- 找到要反转的区间的前驱pre
+
+- 使用单次的反转链表，循环right - left + 1次
+
+- 反转完以后，pre指向的是反转链表的开头，cur指向的是right的后一个节点
+
+![流程图.png](https://pic.leetcode.cn/1769394801-rMZOrC-%E6%B5%81%E7%A8%8B%E5%9B%BE.png)
+
+```java
+
+```
