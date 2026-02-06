@@ -6,6 +6,7 @@ draft = true
 image = '119571089.jpg'
 categories = ['算法', '力扣']
 tags = ['leetcode']
+
 +++
 
 ---
@@ -576,9 +577,9 @@ public class Main {
             for (int i = 0; i < n; i++) {
                 arr[i] = scanner.nextInt();
             }
-            
+
             quickSort(arr, 0, n - 1);
-            
+
             StringBuilder sb = new StringBuilder();
             for (int num : arr) {
                 sb.append(num).append(" ");
@@ -617,11 +618,7 @@ public class Main {
         arr[j] = temp;
     }
 }
-
-
 ```
-
-
 
 ---
 
@@ -652,10 +649,7 @@ class Solution {
         return maxAns;
     }
 }
-
 ```
-
-
 
 ---
 
@@ -705,8 +699,6 @@ class Solution {
 }
 ```
 
-
-
 ---
 
 ### 合并两个有序链表
@@ -733,8 +725,6 @@ class Solution {
     }
 }
 ```
-
-
 
 ---
 
@@ -780,15 +770,11 @@ class Solution {
 }
 ```
 
-
-
 ## Day4
 
 ### 搜索旋转排序数组
 
 https://leetcode.cn/problems/search-in-rotated-sorted-array/description/
-
-
 
 思路：
 
@@ -836,10 +822,6 @@ class Solution {
     }
 }
 ```
-
-
-
-
 
 ---
 
@@ -921,8 +903,6 @@ class Solution {
 }
 ```
 
-
-
 ---
 
 ### 两数之和
@@ -966,8 +946,6 @@ class Solution {
 ### 全排列
 
 https://leetcode.cn/problems/permutations/description/
-
-
 
 ![](2026-02-04-22-01-51-PixPin_2026-02-04_22-01-50.jpg)
 
@@ -1013,8 +991,6 @@ class Solution {
     }
 }
 ```
-
-
 
 ---
 
@@ -1194,8 +1170,6 @@ class Solution {
 }
 ```
 
-
-
 ---
 
 ### 二叉树的最近公共祖先
@@ -1221,7 +1195,7 @@ class Solution {
         TreeNode left = lowestCommonAncestor(root.left, p, q);
         // 在右子树中找p或者q
         TreeNode right = lowestCommonAncestor(root.right, p, q);
-        
+
         // 情况1：如果左右都找到了->当前root就是最近公共祖先
         if (left != null && right != null) {
             return root; // 当前节点是最近公共祖先
@@ -1275,3 +1249,254 @@ class Solution {
     }
 }
 ```
+
+---
+
+## Day6
+
+### 二叉树的锯齿形层序遍历
+
+https://leetcode.cn/problems/binary-tree-zigzag-level-order-traversal/description/
+
+![](2026-02-06-19-09-47-PixPin_2026-02-06_19-09-45.jpg)
+
+思路：
+
+- 同二叉树的程序遍历
+
+- 多一个步骤
+
+- 当前层是奇数，直接添加进结果集；当前层是偶数，则将level反转一下再加入结果集
+
+```java
+class Solution{
+    public List<List<Integer>> zigzagLevelOrder(TreeNode root) {
+        List<List<Integer>> ans = new ArrayList<>();
+        Queue<TreeNode> queue = new ArrayDeque<>();
+        if (root != null) {
+            queue.add(root);
+        }
+
+        while (!queue.isEmpty()) {
+            int n = queue.size();
+            List<Integer> level = new ArrayList<>();
+            while (n-- > 0) {
+                TreeNode node = queue.poll();
+                level.add(node.val);
+                if (node.left != null) queue.add(node.left);
+                if (node.right != null) queue.add(node.right);
+            }
+            if (ans.size() % 2 > 0) {
+                // 如果结果集已经是奇数，说明目前是在偶数层，需要反转
+                Collections.reverse(level);
+            } 
+            ans.add(level);    
+        }
+        return ans;
+    }
+}
+```
+
+---
+
+### 环形链表
+
+https://leetcode.cn/problems/linked-list-cycle/description/
+
+![](2026-02-06-20-42-13-PixPin_2026-02-06_20-42-12.jpg)
+
+思路：
+
+- 快慢指针
+
+- 一个指针走一步，另一个走两步，如果相遇了说明有环
+
+```java
+public class Solution {
+    public boolean hasCycle(ListNode head) {
+        ListNode slow = head;
+        ListNode fast = head; // 乌龟和兔子同时从起点出发
+        while (fast != null && fast.next != null) {
+            slow = slow.next; // 乌龟走一步
+            fast = fast.next.next; // 兔子走两步
+            if (fast == slow) { // 兔子追上乌龟（套圈），说明有环
+                return true;
+            }
+        }
+        return false; // 访问到了链表末尾，无环
+    }
+}
+```
+
+---
+
+### 重排链表
+
+https://leetcode.cn/problems/reorder-list/description/
+
+![](2026-02-06-20-45-56-PixPin_2026-02-06_20-45-55.jpg)
+
+思路：
+
+- 找到链表的中间节点，将链表分成两部分
+
+- 反转后半部分
+
+- 交替插入
+
+```java
+class Solution {
+    public void reorderList(ListNode head) {
+        ListNode mid = middleNode(head);
+        ListNode head2 = reverseList(mid);
+        while (head2.next != null) {
+            ListNode nxt = head.next;
+            ListNode nxt2 = head2.next;
+            head.next = head2;
+            head2.next = nxt;
+            head = nxt;
+            head2 = nxt2;
+        }
+    }
+    // 876.链表的中间节点
+    private ListNode middleNode(ListNode head) {
+        ListNode slow = head, fast = head;
+        while(fast != null && fast.next != null) {
+            slow = slow.next;
+            fast = fast.next.next;
+        }
+        return slow;
+    }
+    // 206.反转链表
+    private ListNode reverseList(ListNode head) {
+        ListNode pre = null;
+        ListNode cur = head;
+        while (cur != null) {
+            ListNode nxt = cur.next;
+            cur.next = cur;
+            cur.next = pre;
+            pre = cur;
+            cur = nxt;
+        }
+        return pre;
+    }
+}
+```
+
+---
+
+### 螺旋矩阵
+
+https://leetcode.cn/problems/spiral-matrix/description/
+
+![](2026-02-06-20-55-14-PixPin_2026-02-06_20-55-12.jpg)
+
+思路：
+
+- 模拟
+
+- 从左上开始，先走right，再走bottom，然后是left，最后是top
+
+```java
+class Solution {
+    public List<Integer> spiralOrder(int[][] matrix) {
+        List<Integer> ans = new ArrayList<>();
+        if (matrix == null || matrix.length == 0 || matrix[0].length == 0) {
+            return ans;
+        }
+        int rows = matrix.length, cols = matrix[0].length;
+        int left = 0, right = cols - 1, top = 0, bottom = rows - 1;
+
+        while (top <= bottom && left <= right) {
+            // 右
+            for (int i = left; i <= right; i++) {
+                ans.add(matrix[top][i]);
+            }
+            top++; // 右走完了，该向下走了，top++
+            if (top > bottom) break; 
+
+            // 下
+            for (int i = top; i<= bottom; i++) {
+                ans.add(matrix[i][right]);
+            }
+            right--; // 下走完了，该往左走了，right--
+            if (right < left) break;
+
+            // 左
+            for (int i = right; i >= left; i--) {
+                ans.add(matrix[bottom][i]);
+            }
+            bottom--;
+            if (bottom < top) break;
+
+            // 上
+            for (int i = bottom; i >= top; i--) {
+                ans.add(matrix[i][left]);
+            }
+            left++;
+            if (left > right) break;
+        }
+        return ans;
+    }
+}
+```
+
+---
+
+### 最长递增子序列
+
+https://leetcode.cn/problems/longest-increasing-subsequence/description/
+
+![](2026-02-06-21-07-26-PixPin_2026-02-06_21-07-24.jpg)
+
+思路：
+
+- 动态规划，记忆化搜索
+
+```java
+class Solution {
+    /**
+     * 计算最长递增子序列的长度
+     * 动态规划解法：时间复杂度 O(n²)，空间复杂度 O(n)
+     * 
+     * @param nums 输入的整数数组
+     * @return 最长递增子序列的长度
+     */
+    public int lengthOfLIS(int[] nums) {
+        // 边界情况：空数组直接返回0
+        if(nums.length == 0) return 0;
+
+        // dp[i] 表示以 nums[i] 结尾的最长递增子序列的长度
+        int[] dp = new int[nums.length];
+
+        // 记录全局最大值，即最终答案
+        int res = 0;
+
+        // 初始化：每个元素自身构成长度为1的递增子序列
+        Arrays.fill(dp, 1);
+
+        // 外层循环：遍历每个位置 i，计算以 nums[i] 结尾的 LIS 长度
+        for(int i = 0; i < nums.length; i++) {
+
+            // 内层循环：遍历 i 之前的所有位置 j，寻找可以接在 nums[i] 前面的递增子序列
+            for(int j = 0; j < i; j++) {
+
+                // 如果 nums[j] < nums[i]，说明 nums[i] 可以接在以 nums[j] 结尾的子序列后面
+                // 此时更新 dp[i]：选择更长的那个（保持原值 或 接在 j 后面）
+                if(nums[j] < nums[i]) {
+                    dp[i] = Math.max(dp[i], dp[j] + 1);
+                }
+            }
+
+            // 更新全局最大值：取当前最大值 和 以 nums[i] 结尾的 LIS 长度的较大者
+            res = Math.max(res, dp[i]);
+        }
+
+        return res;
+    }
+}
+```
+
+---
+
+
