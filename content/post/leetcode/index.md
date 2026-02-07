@@ -1499,4 +1499,216 @@ class Solution {
 
 ---
 
+## Day7
 
+### 删除排序链表中的重复元素
+
+https://leetcode.cn/problems/remove-duplicates-from-sorted-list-ii/description/
+
+![image-20260207163508200](D:\Develop\hugo-blog\dev\content\post\leetcode\image-20260207163508200.png)
+
+思路：
+
+- 一次遍历
+- 创建一个dummy虚拟头节点；再创建一个pre节点，用来表示需要处理的节点的前一个节点
+- 当pre的后两个节点值相同，说明需要删除
+- 然后循环处理，将值等于 x 的全部删除
+
+```java
+class Solution {
+    public ListNode deleteDuplicates(ListNode head) {
+        if (head == null) return head;
+
+        ListNode dummy = new ListNode(0, head);
+
+        ListNode pre = dummy;
+        while (pre.next != null && pre.next.next != null) {
+            if (pre.next.val == pre.next.next.val) { // 后两个节点值相同
+                int x = pre.next.val;
+                // 值等于 x 的节点全部删除
+                while (pre.next != null && pre.next.val == x) {
+                    pre.next = pre.next.next;
+                } 
+            } else {
+                pre = pre.next;
+            }
+        }
+        return dummy.next;
+    }
+}
+```
+
+---
+
+### 接雨水
+
+https://leetcode.cn/problems/trapping-rain-water/description/
+
+![image-20260207163827597](D:\Develop\hugo-blog\dev\content\post\leetcode\image-20260207163827597.png)
+
+思路：
+
+- 双指针法
+- 前缀的preMax和后缀的sufMax
+- 当前i位置的雨水量等于前缀max和后缀max中最小的那个 - 当前高度
+
+``` java
+class Solution {
+    public int trap(int[] height) {
+        int n = height.length;
+        int[] preMax = new int[n];
+        preMax[0] = height[0];
+        for (int i = 1; i < n; i++) {
+            preMax[i] = Math.max(preMax[i - 1], height[i]);
+        }
+        int[] sufMax = new int[n];
+        sufMax[n - 1] = height[n - 1];
+        for (int i = n - 2; i >= 0; i--) {
+            sufMax[i] = Math.max(sufMax[i + 1], height[i]);
+        } 
+
+        int ans = 0;
+        for (int i = 0; i < n; i++) {
+            ans += Math.min(sufMax[i], preMax[i]) - height[i];
+        }
+        return ans;
+    }
+}
+```
+
+---
+
+### 复原IP地址
+
+https://leetcode.cn/problems/restore-ip-addresses/description/
+
+![image-20260207164927184](D:\Develop\hugo-blog\dev\content\post\leetcode\image-20260207164927184.png)
+
+> todo
+
+思路：
+
+- 回溯三部曲：
+- 递归参数
+- 递归终止条件
+- 单层搜索的逻辑
+
+``` java
+class Solution {
+    public List<String> restoreIpAddresses(String s) {
+        List<String> ans = new ArrayList<>();
+        int[] path = new int[4]; // path[i] 表示第 i 段的结束位置 + 1（右开区间）
+        dfs(0, 0, 0, s, s.length(), path, ans);
+        return ans;
+    }
+
+    // 分割 s[i] 到 s[n-1]，现在在第 j 段（j 从 0 开始），数值为 ipVal
+    private void dfs(int i, int j, int ipVal, String s, int n, int[] path, List<String> ans) {
+        if (i == n) { // s 分割完毕
+            if (j == 4) { // 必须有 4 段
+                int a = path[0], b = path[1], c = path[2];
+                ans.add(s.substring(0, a) + "." + s.substring(a, b) + "." + s.substring(b, c) + "." + s.substring(c));
+            }
+            return;
+        }
+
+        if (j == 4) { // j=4 的时候必须分割完毕，不能有剩余字符
+            return;
+        }
+
+        // 手动把字符串转成整数，这样字符串转整数是严格 O(1) 的
+        ipVal = ipVal * 10 + (s.charAt(i) - '0');
+        if (ipVal > 255) { // 不合法
+            return;
+        }
+
+        // 不分割，不以 s[i] 为这一段的结尾
+        if (ipVal > 0) { // 无前导零
+            dfs(i + 1, j, ipVal, s, n, path, ans);
+        }
+
+        // 分割，以 s[i] 为这一段的结尾
+        path[j] = i + 1; // 记录下一段的开始位置
+        dfs(i + 1, j + 1, 0, s, n, path, ans);
+    }
+}
+
+```
+
+---
+
+### 最长公共子序列
+
+https://leetcode.cn/problems/longest-common-subsequence/description/
+
+![image-20260207170642818](D:\Develop\hugo-blog\dev\content\post\leetcode\image-20260207170642818.png)
+
+> todo
+
+思路：
+
+```java
+class Solution {
+    public int longestCommonSubsequence(String text1, String text2) {
+        int m = text1.length();
+        int n = text2.length();
+        
+        // 特殊情况：若任一字符串为空，直接返回"-1"
+        if (m == 0 || n == 0) {
+            return 0;
+        }
+        
+        // 创建DP表，存储LCS长度
+        int[][] dp = new int[m + 1][n + 1];
+        
+        // 填充DP表
+        for (int i = 1; i <= m; i++) {
+            for (int j = 1; j <= n; j++) {
+                if (text1.charAt(i - 1) == text2.charAt(j - 1)) {
+                    // 当前字符相同，LCS长度+1
+                    dp[i][j] = dp[i - 1][j - 1] + 1;
+                } else {
+                    // 字符不同，取子问题的最大值
+                    dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);
+                }
+            }
+        }
+        return dp[m][n];
+    }
+}
+```
+
+---
+
+### 二叉树中的最大路径和
+
+https://leetcode.cn/problems/binary-tree-maximum-path-sum/description/
+
+![image-20260207170730043](D:\Develop\hugo-blog\dev\content\post\leetcode\image-20260207170730043.png)
+
+> todo
+
+思路：
+
+```java
+class Solution {
+    private int ans = Integer.MIN_VALUE;
+    public int maxPathSum(TreeNode root) {
+        dfs(root);
+        return ans;
+    }
+    private int dfs(TreeNode node) {
+        if (node == null) {
+            return 0; // 没有节点，和为 0
+        }
+        int lVal = dfs(node.left); // 左子树最大链和
+        int rVal = dfs(node.right); // 右子树最大链和
+        ans = Math.max(ans, lVal + rVal + node.val); // 两条链拼成路径，全局最大值
+        return Math.max(Math.max(lVal, rVal) + node.val, 0); // 当前子树最大链和，注意这里和0取最大值
+    }
+}
+```
+
+单层dfs的返回值是一条链的（左或者右），或者都是负数的话就返回0。这单链的值是给父节点用的，是单层递归的返回值
+
+**`ans` 是"倒V字型"路径（可以分叉），`return值` 是"直线型"链条（不能分叉）**
