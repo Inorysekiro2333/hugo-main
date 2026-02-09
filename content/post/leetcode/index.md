@@ -1505,7 +1505,7 @@ class Solution {
 
 https://leetcode.cn/problems/remove-duplicates-from-sorted-list-ii/description/
 
-![image-20260207163508200](D:\Develop\hugo-blog\dev\content\post\leetcode\image-20260207163508200.png)
+![image-20260207163508200](image-20260207163508200.png)
 
 思路：
 
@@ -1544,7 +1544,7 @@ class Solution {
 
 https://leetcode.cn/problems/trapping-rain-water/description/
 
-![image-20260207163827597](D:\Develop\hugo-blog\dev\content\post\leetcode\image-20260207163827597.png)
+![image-20260207163827597](image-20260207163827597.png)
 
 思路：
 
@@ -1582,7 +1582,7 @@ class Solution {
 
 https://leetcode.cn/problems/restore-ip-addresses/description/
 
-![image-20260207164927184](D:\Develop\hugo-blog\dev\content\post\leetcode\image-20260207164927184.png)
+![image-20260207164927184](image-20260207164927184.png)
 
 > todo
 
@@ -1641,7 +1641,7 @@ class Solution {
 
 https://leetcode.cn/problems/longest-common-subsequence/description/
 
-![image-20260207170642818](D:\Develop\hugo-blog\dev\content\post\leetcode\image-20260207170642818.png)
+![image-20260207170642818](image-20260207170642818.png)
 
 > todo
 
@@ -1684,7 +1684,7 @@ class Solution {
 
 https://leetcode.cn/problems/binary-tree-maximum-path-sum/description/
 
-![image-20260207170730043](D:\Develop\hugo-blog\dev\content\post\leetcode\image-20260207170730043.png)
+![image-20260207170730043](image-20260207170730043.png)
 
 > todo
 
