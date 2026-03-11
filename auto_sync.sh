@@ -4,8 +4,8 @@
 # 功能：自动拉取远程变更、提交本地更改、推送到GitHub
 # ============================================
 
-# 进入脚本所在目录
-cd "$(dirname "$0")"
+# 直接指定工作目录
+cd /d/Develop/hugo-blog/dev
 
 # 设置颜色输出
 RED='\033[0;31m'
@@ -29,18 +29,15 @@ log_error() {
 # 检查是否有未提交的更改
 check_changes() {
     if git diff --quiet && git diff --cached --quiet; then
-        return 1  # 没有更改
+        return 1
     else
-        return 0  # 有更改
+        return 0
     fi
 }
 
 # 自动提交更改
 auto_commit() {
-    # 添加所有更改
     git add -A
-
-    # 获取变更的文件列表
     changed_files=$(git diff --cached --name-only)
 
     if [ -z "$changed_files" ]; then
@@ -48,10 +45,7 @@ auto_commit() {
         return 1
     fi
 
-    # 生成提交信息
     commit_msg="auto sync: $(date '+%Y-%m-%d %H:%M')"
-
-    # 提交更改
     git commit -m "$commit_msg"
 
     if [ $? -eq 0 ]; then
@@ -67,7 +61,6 @@ auto_commit() {
 main() {
     log_info "========== 开始同步 =========="
 
-    # 拉取远程变更
     log_info "正在拉取远程变更..."
     git pull origin main
 
@@ -76,14 +69,11 @@ main() {
         exit 1
     fi
 
-    # 检查并提交本地更改
     if check_changes; then
         log_info "检测到本地有更改，正在提交..."
-
         if auto_commit; then
             log_info "正在推送到远程..."
             git push origin main
-
             if [ $? -eq 0 ]; then
                 log_info "推送成功！"
             else
@@ -98,5 +88,4 @@ main() {
     log_info "========== 同步完成 =========="
 }
 
-# 执行主流程
 main
