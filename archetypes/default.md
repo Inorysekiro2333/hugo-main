@@ -2,7 +2,7 @@
 title = '{{ replace .File.ContentBaseName "-" " " | title }}'
 description = ''
 date = '{{ .Date }}'
-draft = true
+draft = false
 image = ''
 categories = []
 tags = []
