@@ -1,11 +1,12 @@
 +++
-title = '【RAG项目】企业级RAG项目实战'
+title = '【RAG项目】RAG项目实战'
 description = '实战部署学习过程中的一些踩坑'
 date = '2026-01-15T12:57:15+08:00'
-draft = true
+draft = false
 image = 'PixPin_2026-01-17_20-13-22.jpg'
 categories = ['项目','学习']
 tags = ['agent','rag']
+
 +++
 
 ---
@@ -552,4 +553,341 @@ npm run dev
 
 
 
-## 核心模块：从chat.py开始
+## 跑通Embedding模型
+
+选用Qwen3-Embedding-0___6B作为Embedding模型
+
+### 核心代码实现
+
+1. 编码encode:
+
+```python
+def encode(
+        self, 
+        texts: Union[str, List[str]], 
+        normalize: bool = True,
+        max_length: int = 512
+    ) -> np.ndarray:
+        """
+        将文本编码为向量
+        
+        Args:
+            texts: 单个文本或文本列表
+            normalize: 是否对向量进行L2归一化
+            max_length: 最大序列长度
+            
+        Returns:
+            文本嵌入向量，shape: (n_texts, embedding_dim)
+        """
+        if isinstance(texts, str):
+            texts = [texts]
+        
+        # Tokenize
+        inputs = self.tokenizer(
+            texts,
+            padding=True,
+            truncation=True,
+            max_length=max_length,
+            return_tensors="pt"
+        ).to(self.device)
+        
+        # 推理
+        with torch.no_grad():
+            outputs = self.model(**inputs)
+            # Qwen embedding 通常取最后一层隐藏状态的 [CLS] token 或平均池化
+            embeddings = outputs.last_hidden_state[:, 0, :]  # [CLS] token
+        
+        # 转为 numpy
+        embeddings = embeddings.cpu().numpy()
+        
+        # L2 归一化
+        if normalize:
+            embeddings = embeddings / np.linalg.norm(
+                embeddings, axis=1, keepdims=True
+            )
+        
+        return embedding
+```
+
+---
+
+2. 计算文本间的余弦相似度
+
+```python
+def compute_similarity(
+        self, 
+        text1: Union[str, List[str]], 
+        text2: Union[str, List[str]]
+    ) -> np.ndarray:
+        """
+        计算文本间的余弦相似度
+        
+        Args:
+            text1: 第一组文本
+            text2: 第二组文本
+            
+        Returns:
+            相似度矩阵
+        """
+        emb1 = self.encode(text1, normalize=True)
+        emb2 = self.encode(text2, normalize=True)
+        
+        # 余弦相似度 = 1 - 余弦距离
+        similarities = []
+        for e1 in emb1:
+            row = []
+            for e2 in emb2:
+                sim = 1 - cosine(e1, e2)
+                row.append(sim)
+            similarities.append(row)
+        
+        return np.array(similarities)
+```
+
+---
+
+### 测试
+
+测试一、基本文本嵌入
+
+```python
+def test_basic_embedding(model: QwenEmbeddingModel):
+    """测试1: 基本文本嵌入"""
+    print("\n" + "="*60)
+    print("测试 1: 基本文本嵌入")
+    print("="*60)
+    
+    texts = [
+        "人工智能是计算机科学的一个分支",
+        "Python是一门编程语言",
+        "机器学习是AI的子领域"
+    ]
+    
+    embeddings = model.encode(texts)
+    
+    print(f"\n输入文本数: {len(texts)}")
+    print(f"嵌入维度: {embeddings.shape[1]}")
+    print(f"嵌入向量形状: {embeddings.shape}")
+    
+    print("\n各文本嵌入向量前5个维度的值:")
+    for i, (text, emb) in enumerate(zip(texts, embeddings), 1):
+        print(f"\n{i}. {text}")
+        print(f"   前5维: {emb[:5]}")
+        print(f"   范数: {np.linalg.norm(emb):.6f}")
+```
+
+![image-20260313162326484](image-20260313162326484.png)
+
+---
+
+测试二、文本相似度计算
+
+```python
+def test_similarity(model: QwenEmbeddingModel):
+    """测试2: 文本相似度计算"""
+    print("\n" + "="*60)
+    print("测试 2: 文本相似度计算")
+    print("="*60)
+    
+    query = "如何学习机器学习"
+    candidates = [
+        "机器学习是AI的一个重要分支",
+        "今天天气真好",
+        "深度学习入门教程",
+        "我喜欢吃苹果",
+        "Python机器学习实战指南"
+    ]
+    
+    print(f"\n查询文本: 「{query}」")
+    print("\n候选文本:")
+    for i, text in enumerate(candidates, 1):
+        print(f"  {i}. {text}")
+    
+    similarities = model.compute_similarity(query, candidates)
+    
+    print("\n相似度得分:")
+    sorted_indices = np.argsort(similarities[0])[::-1]  # 降序
+    
+    for rank, idx in enumerate(sorted_indices, 1):
+        sim = similarities[0][idx]
+        print(f"  {rank}. [{sim:.4f}] {candidates[idx]}")
+```
+
+![image-20260313162427917](image-20260313162427917.png)
+
+---
+
+测试三、批量编码效率对比
+
+```python
+def test_batch_encoding(model: QwenEmbeddingModel):
+    """测试3: 批量编码效率"""
+    print("\n" + "="*60)
+    print("测试 3: 批量编码效率对比")
+    print("="*60)
+    
+    import time
+    
+    test_texts = [
+        "自然语言处理是人工智能的重要领域",
+        "计算机视觉让机器能够识别图像",
+        "强化学习通过奖励机制训练智能体",
+        "生成式AI可以创作新的内容",
+        "大语言模型展示了强大的理解能力"
+    ]
+    
+    # 单条处理
+    start_time = time.time()
+    single_results = [model.encode(text) for text in test_texts]
+    single_time = time.time() - start_time
+    
+    # 批量处理
+    start_time = time.time()
+    batch_results = model.encode(test_texts)
+    batch_time = time.time() - start_time
+    
+    print(f"\n文本数量: {len(test_texts)}")
+    print(f"单条处理耗时: {single_time:.3f}s")
+    print(f"批量处理耗时: {batch_time:.3f}s")
+    print(f"批量加速比: {single_time / batch_time:.2f}x")
+    
+    # 验证结果一致
+    single_concat = np.vstack(single_results)
+    max_diff = np.max(np.abs(single_concat - batch_results))
+    print(f"单条与批量结果最大差异: {max_diff:.10f}")
+```
+
+![image-20260313162549208](image-20260313162549208.png)
+
+---
+
+测试四、语义搜索
+
+```python
+def test_semantic_search(model: QwenEmbeddingModel):
+    """测试4: 语义搜索演示"""
+    print("\n" + "="*60)
+    print("测试 4: 语义搜索演示")
+    print("="*60)
+    
+    # 构建文档库
+    documents = [
+        {"id": 1, "content": "Transformer是处理序列数据的神经网络架构", "category": "深度学习"},
+        {"id": 2, "content": "卷积神经网络CNN主要用于图像处理任务", "category": "计算机视觉"},
+        {"id": 3, "content": "循环神经网络RNN适合处理时序数据", "category": "深度学习"},
+        {"id": 4, "content": "BERT是双向编码的预训练语言模型", "category": "NLP"},
+        {"id": 5, "content": "ResNet解决了深层网络的梯度消失问题", "category": "计算机视觉"},
+        {"id": 6, "content": "Attention机制让模型能关注重要信息", "category": "深度学习"},
+        {"id": 7, "content": "GPT系列是生成式预训练语言模型", "category": "NLP"},
+        {"id": 8, "content": "YOLO是一种实时的目标检测算法", "category": "计算机视觉"},
+    ]
+    
+    # 预编码文档
+    doc_texts = [doc["content"] for doc in documents]
+    doc_embeddings = model.encode(doc_texts)
+    
+    # 查询
+    queries = [
+        "什么是注意力机制",
+        "图像识别用什么模型",
+        "文本生成有哪些模型"
+    ]
+    
+    for query in queries:
+        print(f"\n🔍 查询: 「{query}」")
+        query_emb = model.encode(query)
+        
+        # 计算相似度
+        similarities = np.dot(doc_embeddings, query_emb.T).flatten()
+        
+        # 显示Top-3
+        top_k = 3
+        top_indices = np.argsort(similarities)[::-1][:top_k]
+        
+        print(f"\nTop-{top_k} 匹配结果:")
+        for rank, idx in enumerate(top_indices, 1):
+            doc = documents[idx]
+            sim = similarities[idx]
+            print(f"  {rank}. [{sim:.4f}] ({doc['category']}) {doc['content']}")
+```
+
+![image-20260313162643523](image-20260313162643523.png)
+
+## 实现文档解析+切片
+
+### 文档解析实现
+
+
+
+---
+
+### 使用LangChain进行文本分割切片
+
+默认的chunk size和chunk overlap：
+
+DEFAULT_CHUNK_SIZE: int = 500
+
+DEFAULT_CHUNK_OVERLAP: int = 50
+
+```python
+class TextSplitter:
+    """文本切片工具类"""
+    
+    def __init__(
+        self,
+        chunk_size: int = None,
+        chunk_overlap: int = None
+    ):
+        """
+        初始化文本切片器
+        
+        Args:
+            chunk_size: 切片大小（字符数）
+            chunk_overlap: 切片重叠大小（字符数）
+        """
+        self.chunk_size = chunk_size or settings.DEFAULT_CHUNK_SIZE
+        self.chunk_overlap = chunk_overlap or settings.DEFAULT_CHUNK_OVERLAP
+        
+        self.splitter = RecursiveCharacterTextSplitter(
+            chunk_size=self.chunk_size,
+            chunk_overlap=self.chunk_overlap,
+            length_function=len,
+            separators=["\n\n", "\n", "。", "！", "？", "；", "，", " ", ""]
+        )
+    
+    def split_text(self, text: str) -> List[str]:
+        """
+        将文本切分为多个片段
+        
+        Args:
+            text: 待切分的文本
+        
+        Returns:
+            切片列表
+        """
+        chunks = self.splitter.split_text(text)
+        return chunks
+    
+    def split_documents(self, text: str) -> List[dict]:
+        """
+        将文本切分为文档片段（包含元数据）
+        
+        Args:
+            text: 待切分的文本
+        
+        Returns:
+            包含内容和元数据的切片列表
+        """
+        chunks = self.split_text(text)
+        
+        documents = []
+        for i, chunk in enumerate(chunks):
+            documents.append({
+                "chunk_index": i,
+                "content": chunk,
+                "char_count": len(chunk)
+            })
+        
+        return documents
+```
+

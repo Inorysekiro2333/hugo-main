@@ -225,14 +225,14 @@ class Solution {
 解释：
 
 - big + equal = nums.size - small；
-
 - 如果big + equal的元素个数小于 k ，说明第k大的元素不在big和equal中，只能在small中；
-
 - 因为big和equal中的元素都比small中的大，所以在small中需要找**第 k - (big + equeal的数量) 大的元素**
+  - 比如，我要找到第3大的元素，big里面有1个元素，equal里面有1个元素，那第3大的元素肯定在small里，所以我们要在small中找第 （3 - 1 - 1 = 1）大的元素
+
 
 ---
 
-### k个一组反转链表hard
+### k个一组反转链表hard（🌟）
 
 https://leetcode.cn/problems/reverse-nodes-in-k-group/description/
 
@@ -503,7 +503,7 @@ class Solution {
 
 ---
 
-### 合并k个升序链表hard
+### 合并k个升序链表hard（🌟）
 
 https://leetcode.cn/problems/merge-k-sorted-lists/description/
 
