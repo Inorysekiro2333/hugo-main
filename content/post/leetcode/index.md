@@ -788,36 +788,67 @@ https://leetcode.cn/problems/search-in-rotated-sorted-array/description/
 - 就这样循环
 
 ```java
+/**
+ * 解决方案类：用于解决旋转有序数组的查找问题
+ * 核心思路：利用二分查找，先判断哪一部分是有序的，再在有序区间内缩小查找范围
+ */
 class Solution {
+    /**
+     * 在旋转过的有序数组中查找目标值的索引
+     * 旋转有序数组：原本升序的数组在某个点旋转，例如 [0,1,2,4,5,6,7] 旋转后可能是 [4,5,6,7,0,1,2]
+     * @param nums 旋转后的有序数组
+     * @param target 要查找的目标值
+     * @return 目标值在数组中的索引，找不到则返回 -1
+     */
     public int search(int[] nums, int target) {
         int n = nums.length;
+        
+        // 边界条件1：数组为空，直接返回-1（找不到）
         if (n == 0) {
             return -1;
         }
+        
+        // 边界条件2：数组只有1个元素，直接判断是否等于目标值
         if (n == 1) {
             return nums[0] == target ? 0 : -1;
         }
 
+        // 初始化二分查找的左右指针
         int l = 0, r = n - 1;
+        
+        // 二分查找核心循环（左指针不超过右指针时继续）
         while (l <= r) {
+            // 计算中间索引（等价于 (l + r) / 2，避免溢出的写法是 l + (r - l) >> 2）
             int mid = (l + r) / 2;
+            
+            // 找到目标值，直接返回中间索引
             if (nums[mid] == target) {
                 return mid;
             }
+            
+            // 关键判断：左半部分（0 ~ mid）是否是有序的
             if (nums[0] <= nums[mid]) {
+                // 左半部分有序：判断目标值是否在左半部分的范围内
                 if (nums[0] <= target && target < nums[mid]) {
+                    // 目标值在左半部分，缩小右边界
                     r = mid - 1;
                 } else {
+                    // 目标值不在左半部分，缩小左边界
                     l = mid + 1;
                 }
             } else {
+                // 右半部分（mid ~ n-1）是有序的：判断目标值是否在右半部分的范围内
                 if (nums[mid] < target && target <= nums[n - 1]) {
+                    // 目标值在右半部分，缩小左边界
                     l = mid + 1;
                 } else {
+                    // 目标值不在右半部分，缩小右边界
                     r = mid - 1;
                 }
             }
         }
+        
+        // 循环结束未找到目标值，返回-1
         return -1;
     }
 }
@@ -1012,12 +1043,14 @@ https://leetcode.cn/problems/edit-distance/description/
 
 - 状态转移
   
+  ![image-20260315210703833](image-20260315210703833.png)
+  
   - 增：dp[i][j] = dp[i][j - 1] + 1
   
   - 删：dp[i][j] = dp[i - 1][j] + 1
-  
-  - 改：dp[i][j] = dp[i - 1][j - 1] + 1
 
+  - 改：dp[i][j] = dp[i - 1][j - 1] + 1
+  
 - 按顺序计算，当计算 dp[i][j]时，dp[i - 1][j]，dp[i][j - 1]，dp[i - 1][j - 1]均已确定
 
 - 配合增删改三个操作，需要对应的dp把操作次数+1，取三种的最小
@@ -1027,26 +1060,36 @@ https://leetcode.cn/problems/edit-distance/description/
 这道题就是**用表格记步数**，先填好边边（空变字加、字变空删），再填中间（字一样就偷懒，字不一样就从增删改里挑最少的），最后右下角的数就是答案
 
 ```java
-class Solution{
+class Solution {
     public int minDistance(String word1, String word2) {
-        int m = word1.length(), n = word2.length();
+        int m = word1.length();
+        int n = word2.length();
+        
+        // dp[i][j]：word1前i个字符转成word2前j个字符的最小操作数
         int[][] dp = new int[m + 1][n + 1];
-        // 如果word2为空，那么word1变成word2只能一个个删，所以步数就是i
-        for (int i = 0; i < dp.length; i++) {
-            dp[i][0] = i;
-        }
-        // 同上，如果word1为空，要变成word2只能一个个增，所以步数就是j
-        for (int j = 0; j < dp[0].length; j++) {
+        
+        // 初始化边界：空字符串转成word2前j个字符，需要j次增操作
+        for (int j = 1; j <= n; j++) {
             dp[0][j] = j;
         }
-        for (int i = 1; i < dp.length; i++) {
-            for (int j = 1; j < dp[0].length; j++) {
-                dp[i][j] = Math.min(dp[i - 1][j - 1], Math.min(dp[i - 1][j], dp[i][j - 1])) + 1;
+        // 初始化边界：word1前i个字符转成空字符串，需要i次删操作
+        for (int i = 1; i <= m; i++) {
+            dp[i][0] = i;
+        }
+        
+        // 填充dp数组
+        for (int i = 1; i <= m; i++) {
+            for (int j = 1; j <= n; j++) {
                 if (word1.charAt(i - 1) == word2.charAt(j - 1)) {
-                    dp[i][j] = Math.min(dp[i][j], dp[i - 1][j - 1]);
+                    // 字符相等，无需操作，直接继承子问题结果
+                    dp[i][j] = dp[i - 1][j - 1];
+                } else {
+                    // 字符不等，取增、删、改的最小值 +1
+                    dp[i][j] = Math.min(Math.min(dp[i - 1][j], dp[i][j - 1]), dp[i - 1][j - 1]) + 1;
                 }
             }
         }
+        
         return dp[m][n];
     }
 }

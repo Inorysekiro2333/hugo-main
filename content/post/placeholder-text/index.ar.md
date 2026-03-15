@@ -13,6 +13,7 @@ tags = [
     "وسم مع فراغات"
 ]
 image = "matt-le-SJSpo9hQf7s-unsplash.jpg"
+draft = true
 +++
 ## فقرة 1
 
