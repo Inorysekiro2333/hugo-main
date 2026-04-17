@@ -21,13 +21,18 @@ https://leetcode.cn/problems/longest-substring-without-repeating-characters/desc
 
 解法：滑动窗口
 
+- 使用一个计数数组记录窗口内各字符出现的次数
+- 右指针 r 不断右移扩大窗口，将字符加入窗口时计数+1
+- 若窗口中出现重复字符（计数>1），左指针 l 右移收缩窗口，同时计数-1，直到窗口内无重复
+- 每次窗口更新后记录最大长度
+
 ```java
 class Solution {
     public int lengthOfLongestSubstring(String s) {
         int n = s.length();
         // 因为只有英文字母、数字、符号和空格组成
         // 所以创建一个长度为128（askii码）的数组用来记录字符出现的次数
-        int[] cnt = new int[128]; 
+        int[] cnt = new int[128];
         int ans = 0;
 
         int l = 0;
@@ -48,6 +53,10 @@ class Solution {
     }
 }
 ```
+
+**时间复杂度**：O(n)，其中 n 为字符串长度。每个字符最多被左右指针遍历一次。
+
+**空间复杂度**：O(∣Σ∣)，其中 Σ 为字符集大小（本题中为 128），用于计数数组。
 
 ---
 
@@ -143,6 +152,10 @@ class LRUCache {
 }
 ```
 
+**时间复杂度**：O(1)。HashMap 的查找和链表节点的插入/删除都是常数时间。
+
+**空间复杂度**：O(capacity)，即缓存容量的大小，用于存储 HashMap 和双向链表。
+
 ---
 
 ### 反转链表easy
@@ -166,6 +179,10 @@ class Solution {
     }
 }
 ```
+
+**时间复杂度**：O(n)，其中 n 为链表节点数。每个节点遍历一次。
+
+**空间复杂度**：O(1)，只使用了三个指针常量。
 
 ---
 
@@ -229,6 +246,9 @@ class Solution {
 - 因为big和equal中的元素都比small中的大，所以在small中需要找**第 k - (big + equeal的数量) 大的元素**
   - 比如，我要找到第3大的元素，big里面有1个元素，equal里面有1个元素，那第3大的元素肯定在small里，所以我们要在small中找第 （3 - 1 - 1 = 1）大的元素
 
+**时间复杂度**：O(n)，其中 n 为数组长度。快速选择每次划分会递归处理一部分，最坏情况下需要处理全部元素，但期望递归次数为常数级别。
+
+**空间复杂度**：O(n)，用于存储划分后的三个列表。
 
 ---
 
@@ -254,9 +274,9 @@ https://leetcode.cn/problems/reverse-nodes-in-k-group/description/
 
 7.特殊情况，当翻转部分长度不足k时，在定位end完成后，end==null，已经到达末尾，说明题目已完成，直接返回即可
 
-8.时间复杂度为 O(n *K) 最好的情况为 O(n）最差的情况未 O(n²)
+**时间复杂度**：O(n)，其中 n 为链表节点数。每 k 个节点翻转一次，总共翻转 n/k 次，每次翻转访问 k 个节点。
 
-9.空间复杂度为O(1）除了几个必须的节点指针外，我们并没有占用其他空间
+**空间复杂度**：O(1），除了几个必须的节点指针外，没有占用其他空间。
 
 ```java
 public ListNode reverseKGroup(ListNode head, int k) {
@@ -365,6 +385,10 @@ class Solution {
 }
 ```
 
+**时间复杂度**：O(n²)，其中 n 为数组长度。排序时间 O(n log n)，外层循环 O(n)，双指针内层循环 O(n)，整体主要取决于外层和内层的嵌套。
+
+**空间复杂度**：O(1)，除了输出列表外只使用了常数级额外空间。
+
 ---
 
 ### 相交链表
@@ -419,6 +443,10 @@ public class Solution {
 }
 ```
 
+**时间复杂度**：O(a + b)，其中 a、b 分别为两链表的节点数。每个指针遍历两个链表，总步数最多为 a + b。
+
+**空间复杂度**：O(1)，只使用了两个指针。
+
 ---
 
 ### 合并区间
@@ -447,7 +475,7 @@ class Solution {
         for (int[] p : intervals) {
             int m = ans.size();
 
-            // 注意边界条件 
+            // 注意边界条件
             // 如果当前遍历区间左端点 <= 列表中最后一个元素的右端点，说明是可以合并的
             if (m > 0 && p[0] <= ans.get(m - 1)[1]) {
                 // 合并之后的右端点取两者之间的大的
@@ -460,6 +488,10 @@ class Solution {
     }
 }
 ```
+
+**时间复杂度**：O(n log n)，其中 n 为区间数量。排序占主要时间复杂度。
+
+**空间复杂度**：O(log n)，排序算法的递归栈空间（若用自顶向下）或 O(n) 存储结果。
 
 ---
 
@@ -500,6 +532,10 @@ class Solution {
     }
 }
 ```
+
+**时间复杂度**：O(max(n, m))，其中 n、m 分别为两个字符串的长度。每位数字处理一次。
+
+**空间复杂度**：O(max(n, m))，StringBuilder 保存结果。
 
 ---
 
@@ -557,6 +593,10 @@ class Solution {
 }
 ```
 
+**时间复杂度**：O(n log k)，其中 n 为链表总节点数，k 为链表数量。递归深度为 log k，每层合并遍历全部 n 个节点。
+
+**空间复杂度**：O(log k)，递归栈深度为 log k。
+
 ---
 
 ## Day3
@@ -564,6 +604,13 @@ class Solution {
 ### 排序数组（手撕快排）
 
 https://leetcode.cn/problems/sort-an-array/description/
+
+思路：快速排序
+
+- 选择基准元素（通常选择最左边的元素）
+- 通过左右指针遍历，将数组分为两部分：左边 <= 基准，右边 >= 基准
+- 基准元素归位，此时基准左边的数都比它小，右边的数都比它大
+- 递归排序左半部分和右半部分
 
 ```java
 import java.util.Scanner;
@@ -620,6 +667,10 @@ public class Main {
 }
 ```
 
+**时间复杂度**：平均 O(n log n)，最坏 O(n²)。每次划分将数组分为两部分，递归深度平均为 log n，每层处理 O(n) 元素；最坏情况（数组已有序或完全逆序）递归深度为 n。
+
+**空间复杂度**：O(log n)，递归栈深度。
+
 ---
 
 ### 最大子数组和
@@ -650,6 +701,10 @@ class Solution {
     }
 }
 ```
+
+**时间复杂度**：O(n)，其中 n 为数组长度。只需遍历一次。
+
+**空间复杂度**：O(1)，只使用了两个变量。
 
 ---
 
@@ -699,11 +754,17 @@ class Solution {
 }
 ```
 
+**时间复杂度**：O(n²)，其中 n 为字符串长度。外层循环 r 从 1 到 n，内层循环 l 从 0 到 r，遍历所有状态。
+
+**空间复杂度**：O(n²)，二维 DP 数组。
+
 ---
 
 ### 合并两个有序链表
 
 https://leetcode.cn/problems/merge-two-sorted-lists/
+
+思路：双指针法，用哨兵节点（dummy）简化边界处理。比较两链表当前节点，较小的加入结果链表，直到某链表为空，最后拼接剩余部分。
 
 ```java
 class Solution {
@@ -725,6 +786,10 @@ class Solution {
     }
 }
 ```
+
+**时间复杂度**：O(n + m)，其中 n、m 分别为两链表长度。每个节点最多访问一次。
+
+**空间复杂度**：O(1)，只使用了哨兵节点和几个指针。
 
 ---
 
@@ -769,6 +834,12 @@ class Solution {
     }
 }
 ```
+
+**时间复杂度**：O(n)，其中 n 为二叉树节点数。每个节点遍历一次。
+
+**空间复杂度**：O(m)，队列最坏存储所有节点，m 为一层最多的节点数（完全二叉树时约为 n/2）。
+
+---
 
 ## Day4
 
@@ -854,6 +925,10 @@ class Solution {
 }
 ```
 
+**时间复杂度**：O(log n)，其中 n 为数组长度。二分查找每次将搜索范围减半。
+
+**空间复杂度**：O(1)，只使用了几个指针变量。
+
 ---
 
 ### 岛屿数量
@@ -934,6 +1009,10 @@ class Solution {
 }
 ```
 
+**时间复杂度**：O(m × n)，其中 m、n 分别为网格行数和列数。每个单元格最多访问一次。
+
+**空间复杂度**：O(m × n)，标记已访问的 grid 数组（虽然是在原数组上修改，但递归栈深度最坏为 m × n）。
+
 ---
 
 ### 两数之和
@@ -971,6 +1050,10 @@ class Solution {
     }
 }
 ```
+
+**时间复杂度**：O(n)，其中 n 为数组长度。遍历一次数组，哈希表查找和插入平均 O(1)。
+
+**空间复杂度**：O(n)，哈希表存储 n 个元素。
 
 ---
 
@@ -1022,6 +1105,10 @@ class Solution {
     }
 }
 ```
+
+**时间复杂度**：O(n!)，其中 n 为数组长度。全排列共有 n! 种，每种排列处理 O(n) 个位置。
+
+**空间复杂度**：O(n)，递归栈深度为 n，加上 path 和 onPath 数组。
 
 ---
 
@@ -1095,6 +1182,10 @@ class Solution {
 }
 ```
 
+**时间复杂度**：O(m × n)，其中 m、n 分别为两字符串长度。遍历整个 DP 表。
+
+**空间复杂度**：O(m × n)，二维 DP 数组。
+
 ---
 
 ## Day5
@@ -1133,6 +1224,10 @@ class Solution {
 }
 ```
 
+**时间复杂度**：O(m + n)，其中 m、n 分别为 nums1 和 nums2 的有效长度。从后往前遍历，总步数最多为 m + n。
+
+**空间复杂度**：O(1)，只使用了三个指针变量。
+
 ---
 
 ### 买卖股票的最佳时机
@@ -1165,6 +1260,10 @@ class Solution{
 }
 ```
 
+**时间复杂度**：O(n)，其中 n 为数组长度。只需遍历一次。
+
+**空间复杂度**：O(1)，只使用了两个变量。
+
 ---
 
 ### 有效的括号
@@ -1187,31 +1286,37 @@ https://leetcode.cn/problems/valid-parentheses/description/
 
 ```java
 class Solution {
-    public boolean isValid(String s) {
+    public static boolean isValid(String s) {
         int n = s.length();
-        // 必须22匹配。如果长度是奇数，直接返回false
         if (n % 2 != 0) {
             return false;
         }
 
-        // 创建一个栈，如果是左括号则入栈，
-        char[] stack = s.toCharArray();
+        char[] stack = new char[n];
         int top = 0;
-        for (char c : stack) {
-            if (c == '(') {
-                stack[top++] = ')'; // 入栈对应的右括号
-            } else if (c == '[') {
-                stack[top++] = ']';
-            } else if (c == '{') {
-                stack[top++] = '}';
-            } else if (top == 0 || stack[--top] != c) {
-                return false;
+        for (char c : s.toCharArray()) {
+            if (c == '(' || c == '[' || c == '{') {
+                stack[top++] = c; // 左括号入栈
+            } else {
+                if (top == 0)
+                    return false; // 栈空，没有左括号匹配
+                char left = stack[--top]; // 弹出栈顶
+                if (c == ')' && left != '(')
+                    return false;
+                if (c == ']' && left != '[')
+                    return false;
+                if (c == '}' && left != '{')
+                    return false;
             }
         }
-        return top == 0;
+        return top == 0; // 栈空说明全部匹配
     }
 }
 ```
+
+**时间复杂度**：O(n)，其中 n 为字符串长度。每个字符最多入栈和出栈一次。
+
+**空间复杂度**：O(n)，最坏情况（全部左括号）栈的大小为 n。
 
 ---
 
@@ -1252,9 +1357,13 @@ class Solution {
 }
 ```
 
+**时间复杂度**：O(n)，其中 n 为二叉树节点数。最坏情况（搜索到叶子节点）遍历所有节点。
+
+**空间复杂度**：O(n)，递归栈深度，最坏为链状树时深度为 n。
+
 ---
 
-### 反转链表②
+### 反转链表Ⅱ
 
 https://leetcode.cn/problems/reverse-linked-list-ii/description/
 
@@ -1293,9 +1402,11 @@ class Solution {
 }
 ```
 
----
+**时间复杂度**：O(n)，其中 n 为链表节点数。需要遍历找到位置，然后反转 right-left+1 个节点。
 
-## Day6
+**空间复杂度**：O(1)，只使用了几个指针变量。
+
+---
 
 ### 二叉树的锯齿形层序遍历
 
@@ -1340,6 +1451,10 @@ class Solution{
 }
 ```
 
+**时间复杂度**：O(n)，其中 n 为二叉树节点数。每个节点遍历一次。
+
+**空间复杂度**：O(m)，队列最坏存储一层节点数，m 为最宽层的节点数。
+
 ---
 
 ### 环形链表
@@ -1370,6 +1485,10 @@ public class Solution {
     }
 }
 ```
+
+**时间复杂度**：O(n)，其中 n 为链表节点数。最坏情况下（存在环）快慢指针在环内追逐，最多遍历约 n 个节点。
+
+**空间复杂度**：O(1)，只使用了两个指针。
 
 ---
 
@@ -1425,6 +1544,10 @@ class Solution {
     }
 }
 ```
+
+**时间复杂度**：O(n)，其中 n 为链表节点数。找中点 O(n/2)，反转后半部 O(n/2)，合并 O(n)。
+
+**空间复杂度**：O(1)，只使用了几个指针变量。
 
 ---
 
@@ -1484,6 +1607,10 @@ class Solution {
 }
 ```
 
+**时间复杂度**：O(m × n)，其中 m、n 分别为矩阵行数和列数。每个元素遍历一次。
+
+**空间复杂度**：O(1)，只使用了几个边界指针变量。
+
 ---
 
 ### 最长递增子序列
@@ -1540,9 +1667,11 @@ class Solution {
 }
 ```
 
----
+**时间复杂度**：O(n²)，其中 n 为数组长度。外层循环 n，内层循环最坏 n。
 
-## Day7
+**空间复杂度**：O(n)，DP 数组。
+
+---
 
 ### 删除排序链表中的重复元素
 
@@ -1580,6 +1709,10 @@ class Solution {
     }
 }
 ```
+
+**时间复杂度**：O(n)，其中 n 为链表节点数。只需遍历一次。
+
+**空间复杂度**：O(1)，只使用了几个指针变量。
 
 ---
 
@@ -1619,6 +1752,10 @@ class Solution {
 }
 ```
 
+**时间复杂度**：O(n)，其中 n 为数组长度。三次遍历 preMax、sufMax、ans 计算。
+
+**空间复杂度**：O(n)，两个辅助数组 preMax 和 sufMax。
+
 ---
 
 ### 复原IP地址
@@ -1626,8 +1763,6 @@ class Solution {
 https://leetcode.cn/problems/restore-ip-addresses/description/
 
 ![image-20260207164927184](image-20260207164927184.png)
-
-> todo
 
 思路：
 
@@ -1675,8 +1810,11 @@ class Solution {
         dfs(i + 1, j + 1, 0, s, n, path, ans);
     }
 }
-
 ```
+
+**时间复杂度**：O(3⁴ × n)，其中 n 为字符串长度。最多有 3⁴ = 81 种分割方式，每种验证 O(n)。
+
+**空间复杂度**：O(n)，递归栈深度加上 path 数组。
 
 ---
 
@@ -1686,24 +1824,26 @@ https://leetcode.cn/problems/longest-common-subsequence/description/
 
 ![image-20260207170642818](image-20260207170642818.png)
 
-> todo
+思路：动态规划
 
-思路：
+- 定义 `dp[i][j]` 为 text1 前 i 个字符和 text2 前 j 个字符的最长公共子序列长度
+- 若 text1[i-1] == text2[j-1]，则 `dp[i][j] = dp[i-1][j-1] + 1`
+- 否则 `dp[i][j] = max(dp[i-1][j], dp[i][j-1])`
 
 ```java
 class Solution {
     public int longestCommonSubsequence(String text1, String text2) {
         int m = text1.length();
         int n = text2.length();
-        
+
         // 特殊情况：若任一字符串为空，直接返回"-1"
         if (m == 0 || n == 0) {
             return 0;
         }
-        
+
         // 创建DP表，存储LCS长度
         int[][] dp = new int[m + 1][n + 1];
-        
+
         // 填充DP表
         for (int i = 1; i <= m; i++) {
             for (int j = 1; j <= n; j++) {
@@ -1721,6 +1861,10 @@ class Solution {
 }
 ```
 
+**时间复杂度**：O(m × n)，遍历整个 DP 表。
+
+**空间复杂度**：O(m × n)，二维 DP 数组。
+
 ---
 
 ### 二叉树中的最大路径和
@@ -1729,9 +1873,11 @@ https://leetcode.cn/problems/binary-tree-maximum-path-sum/description/
 
 ![image-20260207170730043](image-20260207170730043.png)
 
-> todo
+思路：后序遍历的深度优先搜索
 
-思路：
+- 对每个节点计算"以该节点为端点的最大路径和"（返回值）
+- 同时更新全局变量 ans 记录"经过该节点的最大路径和"（可分叉的倒V型）
+- 返回值 = max(0, 左子树返回值, 右子树返回值) + 当前节点值（因为路径不能有负数）
 
 ```java
 class Solution {
@@ -1752,6 +1898,6 @@ class Solution {
 }
 ```
 
-单层dfs的返回值是一条链的（左或者右），或者都是负数的话就返回0。这单链的值是给父节点用的，是单层递归的返回值
+**时间复杂度**：O(n)，其中 n 为二叉树节点数。每个节点访问一次。
 
-**`ans` 是"倒V字型"路径（可以分叉），`return值` 是"直线型"链条（不能分叉）**
+**空间复杂度**：O(n)，递归栈深度，最坏为链状树时深度为 n。
