@@ -1408,6 +1408,8 @@ class Solution {
 
 ---
 
+## Day6
+
 ### 二叉树的锯齿形层序遍历
 
 https://leetcode.cn/problems/binary-tree-zigzag-level-order-traversal/description/
@@ -1672,6 +1674,8 @@ class Solution {
 **空间复杂度**：O(n)，DP 数组。
 
 ---
+
+## Day7
 
 ### 删除排序链表中的重复元素
 
