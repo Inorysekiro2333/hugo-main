@@ -5,7 +5,7 @@
 # ============================================
 
 # 直接指定工作目录
-cd /d/Develop/hugo-blog/dev
+cd /d/Projects/hugo-blog/dev
 
 # 设置颜色输出
 RED='\033[0;31m'

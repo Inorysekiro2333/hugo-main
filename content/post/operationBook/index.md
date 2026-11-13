@@ -123,4 +123,4 @@ Windows操作系统使用`win + r -> taskschd.msc`
 - 名称：HugoBlogAutoSync
 - 触发器：每日0点
 - 操作：
-    - 启动程序->程序：`D:\Develop\Git\usr\bin\bash.exe`，参数：`d:\Develop\hugo-blog\dev\auto_sync.sh`
+    - 启动程序->程序：`D:\Develop\Git\usr\bin\bash.exe`，参数：`d:\Projects\hugo-blog\dev\auto_sync.sh`
